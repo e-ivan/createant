@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qnyy.re.base.mapper.UserVisitHistoryMapper">
+    <resultMap id="BaseResultMap" type="com.qnyy.re.base.entity.UserVisitHistory">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="uid" property="uid" jdbcType="BIGINT"/>
+        <result column="visitor" property="visitor" jdbcType="BIGINT"/>
+        <result column="time" property="time" jdbcType="INTEGER"/>
+    </resultMap>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+    insert into `user_visit_history` (uid, visitor)
+    values (#{uid,jdbcType=BIGINT}, #{visitor,jdbcType=BIGINT})
+  </insert>
+    <update id="addTime">
+    update `user_visit_history`
+    set `time` = `time` + 1
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+    <sql id="base_column">
+    id, uid, visitor, created, updated, `time`
+  </sql>
+    <sql id="base_where">
+        <where>
+            <choose>
+                <when test="byVisitUid >= 0">
+                    AND h.uid = #{byVisitUid}
+                </when>
+                <when test="visitUid >= 0">
+                    AND h.visitor = #{visitUid}
+                </when>
+            </choose>
+        </where>
+    </sql>
+    <sql id="base_table">
+        `user_visit_history` h LEFT JOIN user_info i ON (i.uid =
+        <choose>
+            <when test="byVisitUid >= 0">
+                h.visitor
+            </when>
+            <when test="visitUid >= 0">
+                h.uid
+            </when>
+            <otherwise>
+                i.uid
+            </otherwise>
+        </choose>
+        )
+    </sql>
+    <select id="selectByUserAndVisitor" resultMap="BaseResultMap">
+        select
+        <include refid="base_column"/>
+        from `user_visit_history`
+        where uid = #{uid} AND visitor = #{visitor}
+    </select>
+    <select id="query" resultMap="com.qnyy.re.base.mapper.UserInfoMapper.BaseResultMap">
+        SELECT
+        <include refid="com.qnyy.re.base.mapper.UserInfoMapper.base_column"/>
+        FROM
+        <include refid="base_table"/>
+        <include refid="base_where"/>
+        ORDER BY h.updated DESC
+        LIMIT #{start},#{pageSize}
+    </select>
+    <select id="queryCount" resultType="java.lang.Integer">
+        SELECT COUNT(h.id) FROM
+        <include refid="base_table"/>
+        <include refid="base_where"/>
+    </select>
+</mapper>

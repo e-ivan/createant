@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+<script type="text/javascript" src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+<script type="text/javascript" src="http://res.wx.qq.com/open/js/jweixin-1.1.0.js"></script>
+<script type="text/javascript">
+    $(function () {
+
+        var retConfig = jsapiTicket();
+        console.log(retConfig);
+        wx.config({
+            debug: false, // 开启调试模式,调用的所有api的返回值会在客户端alert出来，若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。
+            appId: retConfig['appId'], // 必填，公众号的唯一标识
+            jsapi_ticket: retConfig['jsapi_ticket'],
+            timestamp: retConfig['timestamp'], // 必填，生成签名的时间戳
+            nonceStr: retConfig['nonceStr'], // 必填，生成签名的随机串
+            signature: retConfig['signature'],// 必填，签名
+            jsApiList: ['startSearchBeacons','stopSearchBeacons','onSearchBeacons'] // 必填，需要使用的JS接口列表
+        });
+
+        function jsapiTicket() {
+            var obj = {};
+            var url = window.location.href.split('#')[0];
+            console.log(url);
+            $.ajax({
+                type: 'get',
+                url: '/system/getWxMpJSApiConfig',
+                dataType: "json",
+                async:false,
+                data:{url:url},
+                success: function (data) {
+                    if (data.status == 0) {
+                        obj = data.data;
+                    }
+                }
+            });
+            return obj;
+        }
+    });
+    wx.ready(function () {
+        var ticket = getQueryString("ticket");
+        var storeId = getQueryString("storeid");
+        var activityId = getQueryString("activityid");
+        wx.startSearchBeacons({
+            ticket: ticket,
+            complete:function(argv){
+                switch (argv.errMsg){
+                    case 'startSearchBeacons:ok' :
+                        alert("获取摇一摇信息" + ticket);
+                        alert(storeId + "," + activityId);
+                        //当前面都执行通过后，摇一摇，调用以下接口
+                        drawShakearoundRe(ticket, storeId, activityId,'113.334158','23.149638');
+                    break;
+                    case 'startSearchBeacons:already started' :
+                    alert('搜索未关闭');
+                    break;
+                    case 'startSearchBeacons:bluetooth power off' :
+                    alert('蓝牙未打开');
+                    break;
+                    case 'startSearchBeacons:location service disable' :
+                    alert('定位未打开');
+                    break;
+                    case 'startSearchBeacons:system unsupported' :
+                    alert('系统不支持');
+                    break;
+                }
+            }
+        });
+    });
+
+    /**
+     * 领取店铺红包
+     * @param ticket
+     * @param storeId
+     * @param activityId
+     * @param lng   经度
+     * @param lat   纬度
+     */
+    function drawShakearoundRe(ticket, storeId, activityId,lng,lat) {
+        $.ajax({
+            type: 'post',
+            url: '/reMoment/drawRedEnvelope',
+            dataType: "json",
+            data:{ticket:ticket,storeId:storeId,activityId:activityId,lng:lng,lat:lat},
+            success: function (data) {
+                if (data.status == 0) {
+                    writeObj(data.data);
+                }else {
+                    alert(data.msg);
+                }
+            }
+        });
+    }
+
+    function writeObj(obj){
+        var description = "";
+        for(var i in obj){
+            var property=obj[i];
+            description+=i+" = "+property+"\n";
+        }
+        alert(description);
+    }
+    function getQueryString(name) {
+        var reg = new RegExp("(^|&)" + name + "=([^&]*)(&|$)", "i");
+        var r = window.location.search.substr(1).match(reg);
+        if (r != null) return unescape(r[2]);
+        return null;
+    }
+</script>
+<h6 id="text"></h6>
+</body>
+</html>

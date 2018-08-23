@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qnyy.re.business.mapper.ReCommentMapper" >
+  <resultMap id="BaseResultMap" type="com.qnyy.re.business.entity.ReComment" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="re_id" property="reId" jdbcType="BIGINT" />
+    <result column="uid" property="uid" jdbcType="BIGINT" />
+    <result column="nickname" property="nickname" jdbcType="VARCHAR" />
+    <result column="head_url" property="headUrl" jdbcType="VARCHAR" />
+    <result column="reply_uid" property="replyUid" jdbcType="BIGINT" />
+    <result column="reply_nickname" property="replyNickname" jdbcType="VARCHAR" />
+    <result column="reply_head_url" property="replyHeadUrl" jdbcType="VARCHAR" />
+    <result column="created" property="created" jdbcType="TIMESTAMP" />
+    <result column="state" property="state" jdbcType="INTEGER" />
+    <result column="content" property="content" jdbcType="LONGVARCHAR" />
+    <result column="parent_id" property="parentId" jdbcType="BIGINT" />
+    <result column="reply_count" property="replyCount" jdbcType="INTEGER" />
+    <collection property="replys" column="id" select="querySomeReply" fetchType="eager" ofType="com.qnyy.re.business.entity.ReComment"/>
+  </resultMap>
+  <resultMap id="selectOneMap" type="com.qnyy.re.business.entity.ReComment">
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="re_id" property="reId" jdbcType="BIGINT" />
+    <result column="uid" property="uid" jdbcType="BIGINT" />
+    <result column="reply_uid" property="replyUid" jdbcType="BIGINT" />
+    <result column="created" property="created" jdbcType="TIMESTAMP" />
+    <result column="state" property="state" jdbcType="INTEGER" />
+    <result column="content" property="content" jdbcType="LONGVARCHAR" />
+    <result column="parent_id" property="parentId" jdbcType="BIGINT" />
+    <result column="reply_count" property="replyCount" jdbcType="INTEGER" />
+  </resultMap>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" >
+    insert into `re_comment` (re_id, uid, reply_uid,content,parent_id)
+    values (#{reId,jdbcType=BIGINT}, #{uid,jdbcType=BIGINT}, #{replyUid,jdbcType=BIGINT}, #{content,jdbcType=LONGVARCHAR},#{parentId})
+  </insert>
+  <update id="updateByPrimaryKey">
+    update `re_comment`
+    set re_id = #{reId,jdbcType=BIGINT},
+      uid = #{uid,jdbcType=BIGINT},
+      reply_uid = #{replyUid,jdbcType=BIGINT},
+      created = #{created,jdbcType=TIMESTAMP},
+      state = #{state,jdbcType=INTEGER},
+      content = #{content,jdbcType=LONGVARCHAR},
+      reply_count = #{replyCount}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="replyCountAddOne">
+    UPDATE `re_comment`
+    SET reply_count = reply_count + 1
+    WHERE id = #{id}
+  </update>
+  <sql id="base_column">
+    r.id, r.re_id, r.uid, r.reply_uid, r.created, r.state, r.content,r.parent_id,r.reply_count,
+    i.nickname,i.head_url,i2.nickname AS reply_nickname,i2.head_url AS reply_head_url
+  </sql>
+  <sql id="base_table">
+    `re_comment` r LEFT JOIN user_info i ON(r.uid = i.uid) LEFT JOIN user_info i2 ON(r.reply_uid = i2.uid)
+  </sql>
+  <sql id="base_where">
+    <where>
+      <if test="reId >= 0">
+        AND r.re_id = #{reId}
+      </if>
+      <if test="state >= 0">
+        AND r.state = #{state}
+      </if>
+      <if test="parentId >= 0">
+        AND r.parent_id = #{parentId}
+      </if>
+      <if test="parentId &lt; 0">
+        AND r.parent_id IS NULL
+      </if>
+    </where>
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="selectOneMap">
+    select
+    r.id, r.re_id, r.uid, r.reply_uid, r.created, r.state, r.content,r.parent_id,r.reply_count
+    from `re_comment` r
+    where r.id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="query" resultMap="BaseResultMap" >
+    select
+    <include refid="base_column"/>
+    from
+    <include refid="base_table"/>
+    <include refid="base_where"/>
+    LIMIT #{start},#{pageSize}
+  </select>
+  <select id="queryCount" resultType="java.lang.Integer">
+    SELECT COUNT(r.id) FROM `re_comment` r <include refid="base_where"/>
+  </select>
+  <select id="querySomeReply" resultMap="BaseResultMap">
+    SELECT
+    <include refid="base_column"/>
+    FROM
+    <include refid="base_table"/>
+    WHERE r.parent_id = #{parentId} AND r.state = 0 LIMIT 0,5
+  </select>
+  <select id="selectWithSomeReply" resultMap="BaseResultMap">
+    select
+    <include refid="base_column"/>
+    from
+    <include refid="base_table"/>
+    where r.id = #{id,jdbcType=BIGINT}
+  </select>
+</mapper>

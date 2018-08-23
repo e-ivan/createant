@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qnyy.re.base.mapper.UserMsgLogMapper" >
+  <resultMap id="BaseResultMap" type="com.qnyy.re.base.entity.UserMsgLog" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="from" property="from" jdbcType="BIGINT" />
+    <result column="to" property="to" jdbcType="BIGINT" />
+    <result column="type" property="type" jdbcType="INTEGER" />
+    <result column="object_id" property="objectId" jdbcType="BIGINT" />
+    <result column="created" property="created" jdbcType="TIMESTAMP" />
+    <result column="state" property="state" jdbcType="INTEGER" />
+    <result column="content" property="content" jdbcType="LONGVARCHAR" />
+    <association property="fromUser" column="from" javaType="com.qnyy.re.base.mapper.UserInfoMapper" fetchType="eager" select="com.qnyy.re.base.mapper.UserInfoMapper.selectByPrimaryKey"/>
+  </resultMap>
+  <delete id="deleteByPrimaryKey">
+    delete from `user_msg_log`
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" >
+    insert into `user_msg_log` (`from`, `to`, `type`, object_id,content)
+    values (#{from,jdbcType=BIGINT}, #{to,jdbcType=BIGINT}, #{type,jdbcType=INTEGER}, 
+      #{objectId,jdbcType=BIGINT},#{content,jdbcType=LONGVARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey">
+    update `user_msg_log`
+    set `from` = #{from,jdbcType=BIGINT},
+      `to` = #{to,jdbcType=BIGINT},
+      `type` = #{type,jdbcType=INTEGER},
+      object_id = #{objectId,jdbcType=BIGINT},
+      created = #{created,jdbcType=TIMESTAMP},
+      state = #{state,jdbcType=INTEGER},
+      content = #{content,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <sql id="base_column">
+    id, `from`, `to`, `type`, object_id, created, state, content
+  </sql>
+  <sql id="base_where">
+    <where>
+      <if test="to >= 0">
+        AND `to` = #{to}
+      </if>
+    </where>
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    select
+    <include refid="base_column"/>
+    from `user_msg_log`
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select
+    <include refid="base_column"/>
+    from `user_msg_log`
+  </select>
+  <select id="query" resultMap="BaseResultMap">
+    SELECT
+    <include refid="base_column"/>
+    FROM `user_msg_log`
+    <include refid="base_where"/>
+    ORDER BY created DESC
+  </select>
+  <select id="queryCount" resultType="java.lang.Integer">
+    SELECT COUNT(id)  FROM `user_msg_log` <include refid="base_where"/>
+  </select>
+</mapper>

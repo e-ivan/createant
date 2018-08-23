@@ -1,0 +1,31 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+    <parent>
+        <artifactId>parent</artifactId>
+        <groupId>com.qnyy.re</groupId>
+        <version>1.0.0</version>
+    </parent>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>mgrsite</artifactId>
+    <packaging>war</packaging>
+    <name>mgrsite Maven Webapp</name>
+    <url>http://maven.apache.org</url>
+    <dependencies>
+        <!--依赖core项目-->
+        <dependency>
+            <groupId>com.qnyy.re</groupId>
+            <artifactId>core</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <!-- json -->
+
+        <!--fileupload -->
+        <dependency>
+            <groupId>commons-fileupload</groupId>
+            <artifactId>commons-fileupload</artifactId>
+        </dependency>
+    </dependencies>
+    <build>
+        <finalName>mgrsite</finalName>
+    </build>
+</project>

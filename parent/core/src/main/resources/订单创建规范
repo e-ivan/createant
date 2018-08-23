@@ -1,0 +1,8 @@
+订单的类型、支付类型、状态都在OrderUtil工具类里，通用订单和各子订单使用相同的状态
+1、在com.qnyy.re.business.util.OrderUtil.OrderType枚举中创建一个订单类型
+2、新增的订单类继承com.qnyy.re.business.entity.BaseOrder
+3、订单状态统一使用com.qnyy.re.business.util.OrderUtil.OrderState枚举
+4、在创建订单同时，设置好订单类型，在保存的时候直接把原订单对象来保存通用订单对象
+5、在个订单类型服务中添加setOrderSuccess方法(设置订单成功时的业务)，并返回订单对象
+6、在订单路由器com.qnyy.re.business.service.impl.BaseOrderServiceImpl.orderDispatcher中添加订单类型处理返回订单支付详细对象
+总结：继承、路由器、支付成功方法、生成订单信息

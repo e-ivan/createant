@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qnyy.re.base.mapper.UserAccountStatementMapper">
+    <resultMap id="BaseResultMap" type="com.qnyy.re.base.entity.UserAccountStatement">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="account_user" property="accountUser" jdbcType="BIGINT"/>
+        <result column="object_id" property="objectId" jdbcType="BIGINT"/>
+        <result column="created" property="created" jdbcType="TIMESTAMP"/>
+        <result column="account_type" property="accountType" jdbcType="VARCHAR"/>
+        <result column="remark" property="remark" jdbcType="VARCHAR"/>
+        <result column="amount" property="amount" jdbcType="DECIMAL"/>
+        <result column="usable_amount" property="usableAmount" jdbcType="DECIMAL"/>
+        <result column="freeze_amount" property="freezeAmount" jdbcType="DECIMAL"/>
+        <result column="deal_type" property="dealType" jdbcType="TINYINT"/>
+        <result column="in_or_out" property="inOrOut" jdbcType="TINYINT"/>
+    </resultMap>
+
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+    insert into `user_account_statement` (account_user, account_type,remark, amount, usable_amount,
+    freeze_amount, deal_type, in_or_out,object_id)
+    values (#{accountUser,jdbcType=BIGINT}, #{accountType,jdbcType=VARCHAR},#{remark,jdbcType=VARCHAR}, #{amount,jdbcType=DECIMAL},
+     #{usableAmount,jdbcType=DECIMAL}, #{freezeAmount,jdbcType=DECIMAL}, #{dealType,jdbcType=TINYINT}, #{inOrOut,jdbcType=TINYINT},#{objectId})
+  </insert>
+    <sql id="base_column">
+    id,account_user, created, account_type, remark, amount, usable_amount, freeze_amount,
+    deal_type, in_or_out,object_id
+  </sql>
+    <sql id="base_where">
+        <where>
+            <if test="uid >= 0">
+                AND account_user = #{uid}
+            </if>
+            <if test="dealType >= 0">
+                AND deal_type = #{dealType}
+            </if>
+        </where>
+    </sql>
+    <select id="query" resultMap="BaseResultMap">
+        select
+        <include refid="base_column"/>
+        from `user_account_statement`
+        <include refid="base_where"/>
+        <if test="orderBy != null">
+            ORDER BY ${orderBy}
+        </if>
+        LIMIT #{start},#{pageSize}
+    </select>
+    <select id="queryCount" resultType="java.lang.Integer">
+        select COUNT(id) from `user_account_statement`
+        <include refid="base_where"/>
+    </select>
+</mapper>

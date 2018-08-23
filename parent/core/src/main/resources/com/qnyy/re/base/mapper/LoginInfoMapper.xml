@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qnyy.re.base.mapper.LoginInfoMapper">
+    <resultMap id="BaseResultMap" type="com.qnyy.re.base.entity.LoginInfo">
+        <id column="uid" property="uid" jdbcType="BIGINT"/>
+        <result column="username" property="username" jdbcType="VARCHAR"/>
+        <result column="password" property="password" jdbcType="VARCHAR"/>
+        <result column="phone" property="phone" jdbcType="VARCHAR"/>
+        <result column="state" property="state" jdbcType="INTEGER"/>
+        <result column="user_type" property="userType" jdbcType="INTEGER"/>
+        <result column="wechat_token" property="wechatToken" jdbcType="VARCHAR"/>
+        <result column="createant_token" property="createantToken" jdbcType="VARCHAR"/>
+    </resultMap>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="uid">
+    insert into `login_info` (uid, username, password, phone, state, user_type, wechat_token,createant_token)
+    values (#{uid,jdbcType=BIGINT}, #{username,jdbcType=VARCHAR}, #{password,jdbcType=VARCHAR}, 
+      #{phone,jdbcType=VARCHAR}, #{state,jdbcType=INTEGER}, #{userType,jdbcType=INTEGER}, #{wechatToken,jdbcType=VARCHAR},#{createantToken})
+  </insert>
+    <update id="updateByPrimaryKey">
+    update `login_info`
+    set
+      wechat_token = #{wechatToken,jdbcType=VARCHAR},
+      createant_token = #{createantToken,jdbcType=VARCHAR},
+      password = #{password}
+    where uid = #{uid,jdbcType=BIGINT}
+  </update>
+
+    <delete id="deleteUserAndCorrelation">
+    DELETE FROM base_order WHERE uid = #{uid};
+    DELETE FROM cash WHERE applier_id = #{uid};
+    DELETE FROM informant_center WHERE applier_id = #{uid};
+    DELETE FROM login_info WHERE uid = #{uid};
+    DELETE FROM re_comment WHERE uid = #{uid} OR reply_uid = #{uid};
+    DELETE FROM re_item WHERE uid = #{uid} OR re_id IN(SELECT id FROM re_moment WHERE uid = #{uid});
+    DELETE FROM re_vote_user WHERE uid = #{uid} OR re_id IN(SELECT id FROM re_moment WHERE uid = #{uid});
+    DELETE FROM re_moment WHERE uid = #{uid};
+    DELETE FROM re_order WHERE uid = #{uid};
+    DELETE FROM recharge_order WHERE uid = #{uid};
+    DELETE FROM upload_file WHERE uid = #{uid};
+    DELETE FROM user_account WHERE uid = #{uid};
+    DELETE FROM user_account_statement WHERE account_user = #{uid};
+    DELETE FROM user_cash_account WHERE uid = #{uid};
+    DELETE FROM user_class_relation WHERE upper = #{uid} OR junior =  #{uid};
+    DELETE FROM user_fans WHERE uid = #{uid} OR fan =  #{uid};
+    DELETE FROM user_feedback WHERE applier_id = #{uid};
+    DELETE FROM user_info WHERE uid = #{uid};
+    DELETE FROM user_msg_log WHERE `from` = #{uid} OR `to` = #{uid};
+    DELETE FROM user_statistics WHERE `uid` = #{uid};
+    DELETE FROM user_token WHERE `uid` = #{uid};
+    DELETE FROM user_visit_history WHERE `uid` = #{uid} OR visitor = #{uid};
+  </delete>
+    <sql id="base_column">
+    uid, username, password, phone, state, user_type, wechat_token,createant_token, created, updated
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="base_column"/>
+        from `login_info`
+        where uid = #{uid,jdbcType=BIGINT}
+    </select>
+    <select id="queryUserBySource" resultMap="BaseResultMap">
+        SELECT
+        <include refid="base_column"/>
+        FROM `login_info`
+        WHERE
+        <choose>
+            <when test="source == 1">
+                wechat_token
+            </when>
+            <when test="source == 2">
+                createant_token
+            </when>
+        </choose>
+        = #{openId}
+    </select>
+    <select id="getByPhone" resultMap="BaseResultMap">
+        SELECT
+        <include refid="base_column"/>
+        FROM `login_info` WHERE phone = #{phone}
+    </select>
+    <select id="selectSystemAccount" resultMap="BaseResultMap">
+        SELECT
+        <include refid="base_column"/>
+        FROM `login_info` WHERE user_type = 1 LIMIT 0,1
+    </select>
+    <select id="query" resultMap="BaseResultMap">
+        SELECT l.*
+        FROM login_info l RIGHT JOIN user_info u ON (l.uid = u.uid) WHERE u.createant_uid IS NULL LIMIT 0,#{limit}
+    </select>
+    <update id="updateUserCreateantUid">
+        UPDATE login_info l RIGHT JOIN user_info u ON (l.uid = u.uid) SET u.createant_uid = #{id} WHERE l.createant_token = #{token}
+    </update>
+</mapper>

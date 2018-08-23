@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qnyy.re.base.mapper.UserStatisticsMapper">
+    <resultMap id="BaseResultMap" type="com.qnyy.re.base.entity.UserStatistics">
+        <result column="uid" property="uid" jdbcType="BIGINT"/>
+        <result column="re_draw_amount" property="reDrawAmount" jdbcType="DECIMAL"/>
+        <result column="re_pay_amount" property="rePayAmount" jdbcType="DECIMAL"/>
+        <result column="device_re_pay_amount" property="deviceRePayAmount" jdbcType="DECIMAL"/>
+        <result column="re_best_amount" property="reBestAmount" jdbcType="DECIMAL"/>
+        <result column="re_by_draw_count" property="reByDrawCount" jdbcType="INTEGER"/>
+        <result column="re_draw_count" property="reDrawCount" jdbcType="INTEGER"/>
+        <result column="re_pay_count" property="rePayCount" jdbcType="INTEGER"/>
+        <result column="visitor_count" property="visitorCount" jdbcType="INTEGER"/>
+        <result column="total_relation_reap" property="totalRelationReap" jdbcType="DECIMAL"/>
+        <result column="first_relation_reap" property="firstRelationReap" jdbcType="DECIMAL"/>
+        <result column="inform_count" property="informCount" jdbcType="INTEGER"/>
+        <result column="by_inform_count" property="byInformCount" jdbcType="INTEGER"/>
+        <result column="feedback_count" property="feedbackCount" jdbcType="INTEGER"/>
+        <result column="first_relation_count" property="firstRelationCount" jdbcType="INTEGER"/>
+        <result column="second_relation_count" property="secondRelationCount" jdbcType="INTEGER"/>
+        <result column="device_count" property="deviceCount" jdbcType="INTEGER"/>
+    </resultMap>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="uid">
+        insert into `user_statistics` (uid)
+        values (#{uid})
+    </insert>
+    <update id="addCount">
+        UPDATE `user_statistics`
+        SET
+        <choose>
+            <when test="field == 'reByDrawCount'">
+                re_by_draw_count = re_by_draw_count + 1
+            </when>
+            <when test="field == 'reDrawCount'">
+                re_draw_count = re_draw_count + 1
+            </when>
+            <when test="field == 'rePayCount'">
+                re_pay_count = re_pay_count + 1
+            </when>
+            <when test="field == 'visitorCount'">
+                visitor_count = visitor_count + 1
+            </when>
+            <when test="field == 'byInformCount'">
+                by_inform_count = by_inform_count + 1
+            </when>
+            <when test="field == 'informCount'">
+                inform_count = inform_count + 1
+            </when>
+            <when test="field == 'feedbackCount'">
+                feedback_count = feedback_count + 1
+            </when>
+            <when test="field == 'firstRelationCount'">
+                first_relation_count = first_relation_count + 1
+            </when>
+            <when test="field == 'secondRelationCount'">
+                second_relation_count = second_relation_count + 1
+            </when>
+            <when test="field == 'deviceCount'">
+                device_count = device_count + 1
+            </when>
+            <otherwise>
+                visitor_count = visitor_count
+            </otherwise>
+        </choose>
+        WHERE uid = #{uid}
+    </update>
+    <update id="update">
+        UPDATE `user_statistics`
+        SET
+        re_draw_amount = #{reDrawAmount},
+        re_pay_amount = #{rePayAmount},
+        re_best_amount = #{reBestAmount},
+        re_by_draw_count = #{reByDrawCount},
+        re_draw_count = #{reDrawCount},
+        re_pay_count = #{rePayCount},
+        device_re_pay_amount = #{deviceRePayAmount},
+        visitor_count = #{visitorCount},
+        total_relation_reap = #{totalRelationReap},
+        first_relation_reap = #{firstRelationReap},
+        by_inform_count = #{byInformCount},
+        inform_count = #{informCount},
+        first_relation_count = #{firstRelationCount},
+        second_relation_count = #{secondRelationCount},
+        feedback_count = #{feedbackCount},
+        device_count = #{deviceCount}
+        WHERE uid = #{uid}
+    </update>
+    <sql id="base_column">
+    uid, re_draw_amount, re_pay_amount, device_re_pay_amount,re_best_amount, re_by_draw_count, re_draw_count, re_pay_count, visitor_count,total_relation_reap,
+    by_inform_count,inform_count,feedback_count,first_relation_reap,first_relation_count,second_relation_count,device_count
+  </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        SELECT
+        <include refid="base_column"/>
+        FROM `user_statistics` WHERE uid = #{uid}
+    </select>
+    <sql id="base_table">
+      `user_statistics` s LEFT JOIN user_info i ON (s.uid = i.uid)
+    </sql>
+    <sql id="base_where">
+        <where>
+            <if test="minRePayAmount > 0">
+                AND s.re_pay_amount >= #{minRePayAmount}
+            </if>
+        </where>
+    </sql>
+    <select id="query" resultMap="com.qnyy.re.base.mapper.UserInfoMapper.BaseResultMap">
+        SELECT
+        <include refid="com.qnyy.re.base.mapper.UserInfoMapper.base_column"/>
+        FROM
+        <include refid="base_table"/>
+        <include refid="base_where"/>
+        <if test="orderBy != null">
+            ORDER BY ${orderBy}
+        </if>
+        LIMIT #{start},#{pageSize}
+    </select>
+    <select id="queryCount" resultType="java.lang.Integer">
+        SELECT COUNT(s.id) FROM
+        <include refid="base_table"/>
+        <include refid="base_where"/>
+    </select>
+</mapper>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qnyy.re.base.mapper.MchInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.qnyy.re.base.entity.MchInfo" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="mch_name" property="mchName" jdbcType="VARCHAR" />
+    <result column="mch_id" property="mchId" jdbcType="VARCHAR" />
+    <result column="mch_key" property="mchKey" jdbcType="VARCHAR" />
+    <result column="state" property="state" jdbcType="TINYINT" />
+    <result column="api_permissions" property="apiPermissions" jdbcType="VARCHAR" />
+    <result column="token_source" property="tokenSource" jdbcType="VARCHAR" />
+    <result column="created" property="created" jdbcType="TIMESTAMP" />
+    <result column="updated" property="updated" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" >
+    insert into `mch_info` (mch_name, mch_id, mch_key, state, api_permissions,token_source)
+    values (#{mchName,jdbcType=VARCHAR}, #{mchId,jdbcType=VARCHAR}, #{mchKey,jdbcType=VARCHAR}, 
+      #{state,jdbcType=TINYINT}, #{apiPermissions,jdbcType=VARCHAR},#{tokenSource})
+  </insert>
+  <update id="updateByPrimaryKey" >
+    update `mch_info`
+    set mch_name = #{mchName,jdbcType=VARCHAR},
+      mch_id = #{mchId,jdbcType=VARCHAR},
+      mch_key = #{mchKey,jdbcType=VARCHAR},
+      state = #{state,jdbcType=TINYINT},
+      api_permissions = #{apiPermissions,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <update id="updateApiPermissions">
+    UPDATE `mch_info` SET api_permissions = #{apiPermissions} WHERE mch_id = #{mchId}
+  </update>
+  <sql id="base_column">
+    id, mch_name, mch_id, mch_key, state, api_permissions,token_source, created, updated
+  </sql>
+  <select id="selectByMchId" resultMap="BaseResultMap">
+    select
+    <include refid="base_column"/>
+    from `mch_info`
+    where mch_id = #{mchId}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select
+    <include refid="base_column"/>
+    from `mch_info`
+  </select>
+</mapper>

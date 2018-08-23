@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE configuration PUBLIC "-//mybatis.org//DTD SQL Map Config 3.0//EN"  
+	"http://mybatis.org/dtd/mybatis-3-config.dtd">
+<configuration>
+	
+	<settings> 
+        <setting name="cacheEnabled" value="true" /><!-- 全局映射器启用缓存 -->   
+        <setting name="useGeneratedKeys" value="true" /> 
+        <setting name="defaultExecutorType" value="REUSE" />
+		<setting name="lazyLoadingEnabled" value="true"/>
+		<setting name="aggressiveLazyLoading" value="false"/>
+		<setting name="lazyLoadTriggerMethods" value="clone"/>
+    </settings>
+
+	<!--<typeAliases>
+		<typeAlias type="com.qnyy.rp.mgr.entity.system.User" alias="User"/>
+		<typeAlias type="com.qnyy.rp.mgr.entity.system.Role" alias="Role"/>
+		<typeAlias type="com.qnyy.rp.mgr.entity.system.Menu" alias="Menu"/>
+		<typeAlias type="com.qnyy.rp.mgr.entity.system.Dictionaries" alias="Dictionaries"/>
+		<typeAlias type="com.qnyy.rp.mgr.entity.system.Department" alias="Department"/>
+		
+		&lt;!&ndash; 这里添加生成的实体类 &ndash;&gt;
+		
+		
+		<typeAlias type="com.qnyy.rp.mgr.entity.PageData" alias="pd"/>
+		&lt;!&ndash; 分页 &ndash;&gt;
+		<typeAlias type="com.qnyy.rp.mgr.entity.Page" alias="Page"/>
+	</typeAliases>-->
+	
+	<plugins>
+		<plugin interceptor="com.qnyy.re.mgr.plugin.PagePlugin">
+			<property name="dialect" value="mysql"/>
+			<property name="pageSqlId" value=".*listPage.*"/>
+		</plugin>
+	</plugins>
+	
+</configuration>

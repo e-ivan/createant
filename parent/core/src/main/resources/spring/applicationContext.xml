@@ -1,0 +1,155 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx" xmlns:mybatis="http://mybatis.org/schema/mybatis-spring"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+						http://www.springframework.org/schema/beans/spring-beans.xsd
+						http://www.springframework.org/schema/aop 
+						http://www.springframework.org/schema/aop/spring-aop.xsd
+						http://www.springframework.org/schema/context 
+						http://www.springframework.org/schema/context/spring-context.xsd
+						http://www.springframework.org/schema/tx 
+						http://www.springframework.org/schema/tx/spring-tx.xsd http://mybatis.org/schema/mybatis-spring http://mybatis.org/schema/mybatis-spring.xsd">
+
+    <!-- 启用注解 -->
+    <context:annotation-config/>
+
+    <!-- 启动组件扫描，排除@Controller组件，该组件由SpringMVC配置文件扫描 -->
+    <context:component-scan base-package="com.qnyy.re">
+        <context:exclude-filter type="annotation"
+                                expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    <bean name="transactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"/>
+    </bean>
+    <context:property-placeholder location="classpath:dbconfig.properties,classpath:const.properties,classpath:appConfig.properties"
+                                  file-encoding="UTF-8" system-properties-mode="NEVER"/>
+
+    <!-- 阿里 druid数据库连接池 -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource" destroy-method="close">
+        <!-- 数据库基本信息配置 -->
+        <property name="url" value="${url}"/>
+        <property name="username" value="${username}"/>
+        <property name="password" value="${password}"/>
+        <property name="driverClassName" value="${driverClassName}"/>
+        <property name="filters" value="${filters}"/>
+        <!-- 最大并发连接数 -->
+        <property name="maxActive" value="${maxActive}"/>
+        <!-- 初始化连接数量 -->
+        <property name="initialSize" value="${initialSize}"/>
+        <!-- 配置获取连接等待超时的时间 -->
+        <property name="maxWait" value="${maxWait}"/>
+        <!-- 最小空闲连接数 -->
+        <property name="minIdle" value="${minIdle}"/>
+        <!-- 配置间隔多久才进行一次检测，检测需要关闭的空闲连接，单位是毫秒 -->
+        <property name="timeBetweenEvictionRunsMillis" value="${timeBetweenEvictionRunsMillis}"/>
+        <!-- 配置一个连接在池中最小生存的时间，单位是毫秒 -->
+        <property name="minEvictableIdleTimeMillis" value="${minEvictableIdleTimeMillis}"/>
+        <property name="validationQuery" value="${validationQuery}"/>
+        <property name="testWhileIdle" value="${testWhileIdle}"/>
+        <property name="testOnBorrow" value="${testOnBorrow}"/>
+        <property name="testOnReturn" value="${testOnReturn}"/>
+        <property name="maxOpenPreparedStatements" value="${maxOpenPreparedStatements}"/>
+        <!-- 打开removeAbandoned功能 -->
+        <property name="removeAbandoned" value="${removeAbandoned}"/>
+        <!-- 1800秒，也就是30分钟 -->
+        <property name="removeAbandonedTimeout" value="${removeAbandonedTimeout}"/>
+        <!-- 关闭abanded连接时输出错误日志 -->
+        <property name="logAbandoned" value="${logAbandoned}"/>
+    </bean>
+
+    <tx:advice id="txAdvice" transaction-manager="transactionManager">
+        <tx:attributes>
+            <tx:method name="list*" read-only="true"/>
+            <tx:method name="get*" read-only="true"/>
+            <tx:method name="query*" read-only="true"/>
+            <tx:method name="select*" read-only="true"/>
+            <tx:method name="*"/>
+        </tx:attributes>
+    </tx:advice>
+
+    <aop:aspectj-autoproxy proxy-target-class="true"/>
+
+    <!-- 事物处理 -->
+    <aop:config>
+        <aop:pointcut id="pc" expression="execution(* com.qnyy.re..service.*Service.*(..))"/>
+        <aop:advisor pointcut-ref="pc" advice-ref="txAdvice"/>
+    </aop:config>
+    <!--处理日志-->
+    <bean id="logUtil" class="com.qnyy.re.base.util.LogUtil"/>
+    <aop:config>
+        <aop:pointcut id="loginPointcut" expression="execution(* com.qnyy.re.base.service.ILoginInfoService.*Login(..)) ||
+			execution(* com.qnyy.re.base.service.ILoginInfoService.*Register(..))"/>
+        <aop:aspect ref="logUtil">
+            <aop:after-returning method="saveLoginLogSuccess" pointcut-ref="loginPointcut" returning="token"/>
+            <aop:after-throwing method="saveLoginLogFault" pointcut-ref="loginPointcut" throwing="ex"/>
+        </aop:aspect>
+    </aop:config>
+    <!-- 其他AOP -->
+    <bean id="aopUtil" class="com.qnyy.re.base.util.exception.AopUtil"/>
+    <aop:config>
+        <aop:pointcut id="commonPointcut" expression="execution(* com.qnyy.re.controller..*(..))"/>
+        <aop:aspect ref="aopUtil">
+            <aop:before method="checkParam" pointcut-ref="commonPointcut"/>
+        </aop:aspect>
+    </aop:config>
+    <!-- 配置mybatis -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"/>
+        <property name="configLocation" value="classpath:mybatis/mybatis-config.xml"/>
+        <!--扫描别名的包-->
+        <property name="typeAliasesPackage"
+                  value="com.qnyy.re.mgr.entity,com.qnyy.re.base.entity,com.qnyy.re.business.entity"/>
+        <!-- mapper扫描 -->
+        <property name="mapperLocations" value="classpath*:com/qnyy/re/*/mapper/**/*.xml"/>
+    </bean>
+    <!--设置mapper接口所在位置-->
+    <mybatis:scan base-package="com.qnyy.re.base.mapper,com.qnyy.re.business.mapper"/>
+    <!--<bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">-->
+        <!--<property name="basePackage" value="com.qnyy.re.base.mapper,com.qnyy.re.business.mapper"/>-->
+    <!--</bean>-->
+
+    <bean id="sqlSessionTemplate" class="org.mybatis.spring.SqlSessionTemplate">
+        <constructor-arg ref="sqlSessionFactory"/>
+    </bean>
+
+    <!-- ================ Shiro start ================ -->
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <property name="realm" ref="ShiroRealm"/>
+    </bean>
+
+    <!-- 項目自定义的Realm -->
+    <bean id="ShiroRealm" class="com.qnyy.re.mgr.interceptor.shiro.ShiroRealm"/>
+
+    <!-- Shiro Filter -->
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"/>
+
+        <property name="loginUrl" value="/"/>
+
+        <property name="successUrl" value="/main/index"/>
+
+        <property name="unauthorizedUrl" value="/login_toLogin"/>
+
+        <property name="filterChainDefinitions">
+            <value>
+                /static/login/** = anon
+                /static/js/myjs/** = authc
+                /static/js/** = anon
+                /uploadFiles/uploadImgs/** = anon
+                /code.do = anon
+                /login_login = anon
+                /app**/** = anon
+                /weixin/** = anon
+                /** = authc
+            </value>
+        </property>
+    </bean>
+    <!-- ================ Shiro end ================ -->
+
+    <import resource="applicationContext-mongo.xml"/>
+    <import resource="applicationContext-redis.xml"/>
+
+</beans>

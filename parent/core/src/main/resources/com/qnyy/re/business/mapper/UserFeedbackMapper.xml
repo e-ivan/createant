@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qnyy.re.business.mapper.UserFeedbackMapper" >
+  <resultMap id="BaseResultMap" type="com.qnyy.re.business.entity.UserFeedback" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="applier_id" property="applierId" jdbcType="BIGINT" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="created" property="created" jdbcType="TIMESTAMP" />
+    <result column="state" property="state" jdbcType="INTEGER" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="INTEGER" />
+    <result column="qq" property="qq" jdbcType="VARCHAR" />
+    <result column="audit_time" property="auditTime" jdbcType="TIMESTAMP" />
+    <result column="auditor_id" property="auditorId" jdbcType="VARCHAR" />
+    <result column="ip" property="ip" jdbcType="VARCHAR" />
+    <result column="version" property="version" jdbcType="INTEGER" />
+    <result column="content" property="content" jdbcType="LONGVARCHAR" />
+    <result column="remark" property="remark" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <insert id="insert" parameterType="com.qnyy.re.business.entity.UserFeedback" useGeneratedKeys="true" keyProperty="id" >
+    insert into `user_feedback` (applier_id, phone,state, email, `type`,qq,content,ip)
+    values (#{applierId,jdbcType=BIGINT}, #{phone,jdbcType=VARCHAR},#{state,jdbcType=INTEGER}, #{email,jdbcType=VARCHAR},
+     #{type,jdbcType=INTEGER}, #{qq,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR},#{ip})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.qnyy.re.business.entity.UserFeedback" >
+    update `user_feedback`
+    <include refid="com.qnyy.re.business.mapper.CashMapper.base_audit_set"/>
+  </update>
+  <sql id="base_column">
+    id, applier_id, phone, created, state, email, `type`, qq, audit_time, auditor_id,
+    version, content, remark,ip
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="base_column"/>
+    from `user_feedback`
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select
+    <include refid="base_column"/>
+    from `user_feedback`
+  </select>
+  <select id="selectByUserAtLatest" resultMap="BaseResultMap">
+    SELECT
+    <include refid="base_column"/>
+    FROM `user_feedback` WHERE applier_id = #{uid} ORDER BY created DESC LIMIT 0,1
+  </select>
+</mapper>

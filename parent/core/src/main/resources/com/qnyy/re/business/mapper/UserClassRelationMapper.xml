@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qnyy.re.business.mapper.UserClassRelationMapper" >
+  <resultMap id="BaseResultMap" type="com.qnyy.re.business.entity.UserClassRelation" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="upper" property="upper" jdbcType="BIGINT" />
+    <result column="junior" property="junior" jdbcType="BIGINT" />
+    <result column="created" property="created" jdbcType="TIMESTAMP" />
+    <result column="reap" property="reap" jdbcType="DECIMAL" />
+    <result column="second_reap" property="secondReap" jdbcType="DECIMAL" />
+    <result column="reap_count" property="reapCount" jdbcType="INTEGER" />
+  </resultMap>
+  <resultMap id="userResultMap" type="com.qnyy.re.business.entity.UserClassRelation" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="upper" property="upper" jdbcType="BIGINT" />
+    <result column="junior" property="junior" jdbcType="BIGINT" />
+    <result column="created" property="created" jdbcType="TIMESTAMP" />
+    <result column="reap" property="reap" jdbcType="DECIMAL" />
+    <result column="second_reap" property="secondReap" jdbcType="DECIMAL" />
+    <result column="reap_count" property="reapCount" jdbcType="INTEGER" />
+    <association property="juniorUser" column="junior" javaType="com.qnyy.re.base.mapper.UserInfoMapper" fetchType="eager"
+                 select="com.qnyy.re.base.mapper.UserInfoMapper.selectByPrimaryKey"/>
+  </resultMap>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" >
+    insert into `user_class_relation` (`upper`, junior)
+    values (#{upper,jdbcType=BIGINT}, #{junior,jdbcType=BIGINT})
+  </insert>
+  <update id="updateByPrimaryKey">
+    update `user_class_relation`
+    set
+      reap = #{reap},
+      second_reap = #{secondReap},
+      reap_count = reap_count + 1
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <sql id="base_column">
+    id, `upper`, junior, created, reap,reap_count,second_reap
+  </sql>
+  <select id="queryUpperCount" resultType="integer">
+    select COUNT(id)
+    from `user_class_relation`
+    where `upper` = #{uid}
+  </select>
+  <sql id="base_where">
+    <where>
+      <if test="uid >= 0 and level &lt; 0">
+        AND `upper` = #{uid}
+      </if>
+      <if test="uid >= 0 and level >= 0">
+        AND `upper` IN(SELECT junior FROM user_class_relation WHERE `upper` = #{uid})
+      </if>
+    </where>
+  </sql>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select
+    <include refid="base_column"/>
+    from `user_class_relation`
+  </select>
+  <select id="selectByJunior" resultMap="BaseResultMap">
+    SELECT
+    <include refid="base_column"/>
+    FROM `user_class_relation` WHERE junior = #{uid}
+  </select>
+  <select id="query" resultMap="userResultMap">
+    SELECT
+    <include refid="base_column"/>
+    FROM `user_class_relation`
+    <include refid="base_where"/>
+    <if test="orderBy != null">
+      ORDER BY ${orderBy}
+    </if>
+    LIMIT #{start},#{pageSize}
+  </select>
+  <select id="queryCount" resultType="java.lang.Integer">
+    SELECT COUNT(id) FROM `user_class_relation` <include refid="base_where"/>
+  </select>
+</mapper>

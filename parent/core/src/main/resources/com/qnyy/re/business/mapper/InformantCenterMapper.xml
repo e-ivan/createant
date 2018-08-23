@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qnyy.re.business.mapper.InformantCenterMapper" >
+  <resultMap id="BaseResultMap" type="com.qnyy.re.business.entity.InformantCenter" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="applier_id" property="applierId" jdbcType="BIGINT" />
+    <result column="defendant" property="defendant" jdbcType="BIGINT" />
+    <result column="email" property="email" jdbcType="VARCHAR" />
+    <result column="qq" property="qq" jdbcType="VARCHAR" />
+    <result column="phone" property="phone" jdbcType="VARCHAR" />
+    <result column="ip" property="ip" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="INTEGER" />
+    <result column="state" property="state" jdbcType="INTEGER" />
+    <result column="created" property="created" jdbcType="TIMESTAMP" />
+    <result column="audit_time" property="auditTime" jdbcType="TIMESTAMP" />
+    <result column="auditor_id" property="auditorId" jdbcType="BIGINT" />
+    <result column="version" property="version" jdbcType="INTEGER" />
+    <result column="content" property="content" jdbcType="LONGVARCHAR" />
+    <result column="remark" property="remark" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" >
+    insert into `informant_center` (applier_id, defendant, email, qq, phone, `type`, state,content,ip)
+    values (#{applierId,jdbcType=BIGINT}, #{defendant,jdbcType=BIGINT}, #{email,jdbcType=VARCHAR}, 
+      #{qq,jdbcType=VARCHAR}, #{phone,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, #{state,jdbcType=INTEGER}, 
+       #{content,jdbcType=LONGVARCHAR},#{ip})
+  </insert>
+  <update id="updateByPrimaryKey">
+    update `informant_center`
+    <include refid="com.qnyy.re.business.mapper.CashMapper.base_audit_set"/>
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select id, applier_id, defendant, email, qq, phone, type, state, created, audit_time, 
+    auditor_id, version, content, remark
+    from `informant_center`
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select id, applier_id, defendant, email, qq, phone, type, state, created, audit_time, 
+    auditor_id, version, content, remark
+    from `informant_center`
+  </select>
+</mapper>

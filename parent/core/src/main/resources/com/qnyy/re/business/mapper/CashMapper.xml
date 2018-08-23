@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qnyy.re.business.mapper.CashMapper" >
+  <resultMap id="BaseResultMap" type="com.qnyy.re.business.entity.Cash" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="applier_id" property="applierId" jdbcType="BIGINT" />
+    <result column="note" property="note" jdbcType="VARCHAR" />
+    <result column="state" property="state" jdbcType="INTEGER" />
+    <result column="amount" property="amount" jdbcType="DECIMAL" />
+    <result column="auditor_id" property="auditorId" jdbcType="BIGINT" />
+    <result column="audit_time" property="auditTime" jdbcType="TIMESTAMP" />
+    <result column="remark" property="remark" jdbcType="VARCHAR" />
+    <result column="version" property="version" jdbcType="INTEGER" />
+    <result column="created" property="created" jdbcType="TIMESTAMP" />
+  </resultMap>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" >
+    insert into `cash` (applier_id, note, state, amount)
+    values (#{applierId,jdbcType=BIGINT}, #{note,jdbcType=VARCHAR}, #{state,jdbcType=INTEGER}, #{amount,jdbcType=DECIMAL})
+  </insert>
+  <sql id="base_audit_set">
+    set
+      state = #{state,jdbcType=INTEGER},
+      auditor_id = #{auditorId,jdbcType=BIGINT},
+      audit_time = #{auditTime,jdbcType=TIMESTAMP},
+      remark = #{remark,jdbcType=VARCHAR},
+      version = version + 1
+    where id = #{id,jdbcType=BIGINT} AND version = #{version}
+  </sql>
+  <update id="updateByPrimaryKey" >
+    update `cash`
+    <include refid="base_audit_set"/>
+  </update>
+  <sql id="base_column">
+    id, applier_id, note, state, amount, auditor_id, audit_time, remark, version,created
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" >
+    select
+    <include refid="base_column"/>
+    from `cash`
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+</mapper>

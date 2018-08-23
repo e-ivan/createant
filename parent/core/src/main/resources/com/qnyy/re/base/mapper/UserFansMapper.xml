@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qnyy.re.base.mapper.UserFansMapper">
+  <resultMap id="BaseResultMap" type="com.qnyy.re.base.entity.UserFans">
+    <id column="id" jdbcType="BIGINT" property="id" />
+    <result column="uid" jdbcType="BIGINT" property="uid" />
+    <result column="fan" jdbcType="BIGINT" property="fan" />
+    <result column="state" jdbcType="TINYINT" property="state" />
+  </resultMap>
+  <insert id="insert" keyProperty="id" useGeneratedKeys="true">
+    insert into `user_fans` (uid, fan, state)
+    values (#{uid,jdbcType=BIGINT}, #{fan,jdbcType=BIGINT}, 1)
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.qnyy.re.base.entity.UserFans">
+    update `user_fans`
+    set uid = #{uid,jdbcType=BIGINT},
+      fan = #{fan,jdbcType=BIGINT},
+      state = #{state}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <sql id="base_column">
+    id, uid, fan, state
+  </sql>
+  <select id="selectByUserAndFan" resultMap="BaseResultMap">
+    select
+    <include refid="base_column" />
+    from `user_fans`
+    where uid = #{uid} AND fan = #{fan}
+  </select>
+  <sql id="base_table">
+    `user_fans` f LEFT JOIN user_info i ON (i.uid =
+    <choose>
+      <when test="byFanUid >= 0">
+        f.fan
+      </when>
+      <when test="fanUid >= 0">
+        f.uid
+      </when>
+      <otherwise>
+        i.uid
+      </otherwise>
+    </choose>
+    )
+  </sql>
+  <sql id="base_where">
+    <where>
+      <choose>
+        <when test="byFanUid >= 0">
+          AND f.uid = #{byFanUid}
+        </when>
+        <when test="fanUid >= 0">
+          AND f.fan = #{fanUid}
+        </when>
+      </choose>
+      AND f.state = 1
+    </where>
+  </sql>
+  <select id="query" resultMap="com.qnyy.re.base.mapper.UserInfoMapper.BaseResultMap">
+    select
+    <include refid="com.qnyy.re.base.mapper.UserInfoMapper.base_column"/>
+    from
+    <include refid="base_table"/>
+    <include refid="base_where"/>
+    LIMIT #{start},#{pageSize}
+  </select>
+  <select id="queryCount" resultType="java.lang.Integer">
+    select count(f.id) from
+    <include refid="base_table"/>
+    <include refid="base_where"/>
+  </select>
+</mapper>

@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qnyy.re.base.mapper.SysBroadcastMapper" >
+  <resultMap id="BaseResultMap" type="com.qnyy.re.base.entity.SysBroadcast" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="url" property="url" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="INTEGER" />
+    <result column="location" property="location" jdbcType="INTEGER" />
+    <result column="state" property="state" jdbcType="INTEGER" />
+    <result column="created" property="created" jdbcType="TIMESTAMP" />
+    <result column="sequence" property="sequence" jdbcType="INTEGER" />
+    <result column="title" property="title" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" >
+    insert into `sys_broadcast` (url, `type`, location, sequence, title)
+    values (#{url,jdbcType=VARCHAR}, #{type,jdbcType=INTEGER}, #{location,jdbcType=INTEGER}, #{sequence,jdbcType=INTEGER}, #{title,jdbcType=LONGVARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" >
+    update `sys_broadcast`
+    set url = #{url,jdbcType=VARCHAR},
+      `type` = #{type,jdbcType=INTEGER},
+      location = #{location,jdbcType=INTEGER},
+      created = #{created,jdbcType=TIMESTAMP},
+      sequence = #{sequence,jdbcType=INTEGER},
+      title = #{title,jdbcType=LONGVARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    select id, url, `type`, location, created, sequence, title,state
+    from `sys_broadcast`
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap">
+    select id, url, `type`, location, created, sequence, title,state
+    from `sys_broadcast`
+  </select>
+</mapper>

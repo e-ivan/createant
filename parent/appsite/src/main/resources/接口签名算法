@@ -1,0 +1,54 @@
+访问文档api都需要对请求参数进行签名，除了不需要验证登录状态的接口外都需要传递请求头参数
+请求头参数
+
+    请求头参数
+
+参数名 	类型 	必须 	参数说明
+mchId 	string 	是 	商户id
+nonceStr 	string 	是 	随机数
+timestamp 	long 	是 	时间戳，毫秒
+signature 	string 	是 	签名参数，见签名算法规则
+token 	string 	否 	当前用户token，需要登录的接口必须带上
+参数签名算法规则
+
+1、对所有API请求参数params以及头参数header（除去signature字段、文件类型参数、空值和空字符串，数组进行拆分)，根据参数名称的Unicode码表的顺序排序
+如请求参数
+
+    foo=1, bar=2, foo_bar=3, foobar=4, bar=3
+
+请求头
+
+    mchId=hydt,nonceStr=nonceStr,timestamp=1526714243896,token=token
+
+排序后
+
+    bar=2,bar=3,foo=1, foo_bar=3, foobar=4,mchId=hydt,nonceStr=nonceStr,timestamp=1526714243896,token=token
+
+2、将排序好的参数值进行URLEncoder并拼接起来，最后需要加上mchKey值，根据上面的示例得到的结果为：
+
+    23134hydtnonceStr1526714243896token + [mchKey]
+
+3、把拼装好的字符串采用utf-8编码，进行SHA1加密，并将所有字符upperCase，所得到的即为签名结果。如：
+
+    SHA1(23134hydtnonceStr1526714243896token + [mchKey]).upperCase()
+
+后台校验请求成功返回0
+
+    {
+        "status": 0,
+        "msg": "操作成功",
+        "data": {}
+    }
+
+错误代码信息
+错误码 	错误解释
+100100 	方法签名错误
+100101 	请求参数不完整，缺少必要参数
+100301 	登录失效，请重新登录
+
+其它错误信息请查看全局错误码
+开发注意事项
+
+1、不需要token验证的接口使用注解UnRequiredLogin来标记，此时还需要验证参数签名
+2、不需要token验证和参数签名，在UnRequiredLogin标签中加上值checkSign = false
+3、开发时在拦截器中设置全局不检查参数签名

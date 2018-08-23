@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qnyy.re.base.mapper.ApiInfoMapper" >
+  <resultMap id="BaseResultMap" type="com.qnyy.re.base.entity.ApiInfo" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="name" property="name" jdbcType="VARCHAR" />
+    <result column="uri" property="uri" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="VARCHAR" />
+    <result column="bean_class" property="beanClass" jdbcType="VARCHAR" />
+    <result column="method" property="method" jdbcType="VARCHAR" />
+    <result column="request_method" property="requestMethod" jdbcType="VARCHAR" />
+    <result column="intro" property="intro" jdbcType="LONGVARCHAR" />
+    <result column="required_login" property="requiredLogin" jdbcType="TINYINT" />
+    <result column="check_sign" property="checkSign" jdbcType="TINYINT" />
+    <result column="site" property="site" jdbcType="VARCHAR" />
+  </resultMap>
+  <insert id="batchInsert">
+    INSERT INTO api_info (`name`,uri,`type`,bean_class,method,intro,request_method,required_login,check_sign,site) VALUES
+    <foreach collection="list" item="item" index="index" separator=",">
+      (#{item.name},#{item.uri},#{item.type},#{item.beanClass},#{item.method},#{item.intro},#{item.requestMethod},#{item.requiredLogin},#{item.checkSign},#{item.site})
+    </foreach>
+--      ON DUPLICATE KEY UPDATE
+--     `name` = VALUES(`name`),`type` = VALUES(`type`),bean_class = VALUES(bean_class),method = VALUES(method),intro = VALUES(intro),
+--     request_method = VALUES(request_method),required_login = VALUES(required_login),check_sign = VALUES(check_sign)
+  </insert>
+  <update id="updateByUri">
+    update `api_info`
+    set `name` = #{name,jdbcType=VARCHAR},
+      `type` = #{type,jdbcType=VARCHAR},
+      bean_class = #{beanClass,jdbcType=VARCHAR},
+      method = #{method,jdbcType=VARCHAR},
+      intro = #{intro,jdbcType=LONGVARCHAR},
+      request_method = #{requestMethod},
+      required_login = #{requiredLogin},
+      check_sign = #{checkSign},
+      site = #{site}
+    where uri = #{uri}
+  </update>
+  <update id="batchUpdate">
+    <foreach collection="list" item="item" index="index" separator=";">
+      update `api_info`
+      set `name` = #{item.name},
+      `type` = #{item.type},
+      bean_class = #{item.beanClass},
+      method = #{item.method},
+      intro = #{item.intro},
+      request_method = #{item.requestMethod},
+      required_login = #{item.requiredLogin},
+      check_sign = #{item.checkSign},
+      site = #{item.site}
+      where uri = #{item.uri}
+    </foreach>
+  </update>
+    <delete id="batchDelete">
+      DELETE FROM `api_info` WHERE id IN
+      <foreach collection="list" item="id" open="(" separator="," close=")">
+        #{id}
+      </foreach>
+    </delete>
+    <sql id="base_column">
+    id, `name`, uri, `type`, bean_class, method, intro,request_method,required_login,check_sign,site
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap" parameterType="java.lang.Long" >
+    select
+    <include refid="base_column"/>
+    from `api_info`
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectAllBySite" resultMap="BaseResultMap" >
+    select
+    <include refid="base_column"/>
+    from `api_info`
+    WHERE site = #{site}
+  </select>
+  <select id="selectByUri" resultMap="BaseResultMap">
+    SELECT
+    <include refid="base_column"/>
+    FROM `api_info` WHERE uri = #{uri} AND site = #{site}
+  </select>
+</mapper>

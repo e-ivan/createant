@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qnyy.re.base.mapper.VersionUpgradeMapper" >
+  <resultMap id="BaseResultMap" type="com.qnyy.re.base.entity.VersionUpgrade" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="version_code" property="versionCode" jdbcType="INTEGER" />
+    <result column="version_name" property="versionName" jdbcType="VARCHAR" />
+    <result column="created" property="created" jdbcType="TIMESTAMP" />
+    <result column="must" property="must" jdbcType="TINYINT" />
+    <result column="apk_url" property="apkUrl" jdbcType="VARCHAR" />
+    <result column="app_type" property="appType" jdbcType="TINYINT" />
+    <result column="upgrade_point" property="upgradePoint" jdbcType="LONGVARCHAR" />
+  </resultMap>
+  <delete id="deleteByPrimaryKey">
+    delete from `version_upgrade`
+    where id = #{id,jdbcType=BIGINT}
+  </delete>
+
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" >
+    insert into `version_upgrade` (version_code, version_name, must, apk_url, app_type, upgrade_point)
+    values (#{versionCode,jdbcType=INTEGER}, #{versionName,jdbcType=VARCHAR},
+      #{must,jdbcType=TINYINT}, #{apkUrl,jdbcType=VARCHAR}, #{appType,jdbcType=TINYINT}, 
+      #{upgradePoint,jdbcType=LONGVARCHAR})
+  </insert>
+  <update id="updateByPrimaryKey" parameterType="com.qnyy.re.base.entity.VersionUpgrade" >
+    update `version_upgrade`
+    set
+    apk_url = #{apkUrl,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=BIGINT}
+  </update>
+  <sql id="base_column">
+    id, version_code, version_name, created, must, apk_url, app_type, upgrade_point
+  </sql>
+  <select id="selectLatestVersion" resultMap="BaseResultMap">
+    SELECT
+    <include refid="base_column"/>
+    FROM `version_upgrade` WHERE app_type = #{appType} ORDER BY created DESC LIMIT 0,1
+  </select>
+  <select id="queryBeforeVersionMustUpgrade" resultType="java.lang.Integer">
+    SELECT COUNT(id) FROM `version_upgrade` WHERE app_type = #{appType} AND version_code &gt; #{versionCode} AND must = 1
+  </select>
+</mapper>

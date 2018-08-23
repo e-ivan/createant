@@ -1,0 +1,227 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qnyy.re.business.mapper.ReMomentMapper">
+    <resultMap id="BaseResultMap" type="com.qnyy.re.business.entity.ReMoment">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="uid" property="uid" jdbcType="BIGINT"/>
+        <result column="pic_url" property="picUrl" jdbcType="VARCHAR"/>
+        <result column="state" property="state" jdbcType="INTEGER"/>
+        <result column="re_amount" property="reAmount" jdbcType="DECIMAL"/>
+        <result column="re_num" property="reNum" jdbcType="INTEGER"/>
+        <result column="draw_amount" property="drawAmount" jdbcType="DECIMAL"/>
+        <result column="draw_count" property="drawCount" jdbcType="INTEGER"/>
+        <result column="scope" property="scope" jdbcType="INTEGER"/>
+        <result column="district_id" property="districtId" jdbcType="INTEGER"/>
+        <result column="city_id" property="cityId" jdbcType="INTEGER"/>
+        <result column="crowd" property="crowd" jdbcType="INTEGER"/>
+        <result column="store_id" property="storeId" jdbcType="BIGINT"/>
+        <result column="shop_id" property="shopId" jdbcType="BIGINT"/>
+        <result column="link_to" property="linkTo" jdbcType="VARCHAR"/>
+        <result column="re_location" property="reLocation" jdbcType="VARCHAR"/>
+        <result column="content" property="content" jdbcType="LONGVARCHAR"/>
+        <result column="comment_count" property="commentCount" jdbcType="INTEGER"/>
+        <result column="view_count" property="viewCount" jdbcType="INTEGER"/>
+        <result column="vote_count" property="voteCount" jdbcType="INTEGER"/>
+        <result column="type" property="type" jdbcType="INTEGER"/>
+        <result column="version" property="version" jdbcType="INTEGER"/>
+        <association property="user" column="uid" javaType="com.qnyy.re.base.mapper.UserInfoMapper" fetchType="eager"
+                     select="com.qnyy.re.base.mapper.UserInfoMapper.selectByPrimaryKey"/>
+        <collection property="reItems" ofType="com.qnyy.re.base.entity.UserInfo" column="id" fetchType="eager"
+                    select="com.qnyy.re.business.mapper.ReItemMapper.select2User"/>
+    </resultMap>
+    <resultMap id="selectOneMap" type="com.qnyy.re.business.entity.ReMoment">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="uid" property="uid" jdbcType="BIGINT"/>
+        <result column="pic_url" property="picUrl" jdbcType="VARCHAR"/>
+        <result column="state" property="state" jdbcType="INTEGER"/>
+        <result column="re_amount" property="reAmount" jdbcType="DECIMAL"/>
+        <result column="re_num" property="reNum" jdbcType="INTEGER"/>
+        <result column="draw_amount" property="drawAmount" jdbcType="DECIMAL"/>
+        <result column="draw_count" property="drawCount" jdbcType="INTEGER"/>
+        <result column="scope" property="scope" jdbcType="INTEGER"/>
+        <result column="district_id" property="districtId" jdbcType="INTEGER"/>
+        <result column="city_id" property="cityId" jdbcType="INTEGER"/>
+        <result column="crowd" property="crowd" jdbcType="INTEGER"/>
+        <result column="store_id" property="storeId" jdbcType="BIGINT"/>
+        <result column="shop_id" property="shopId" jdbcType="BIGINT"/>
+        <result column="link_to" property="linkTo" jdbcType="VARCHAR"/>
+        <result column="re_location" property="reLocation" jdbcType="VARCHAR"/>
+        <result column="content" property="content" jdbcType="LONGVARCHAR"/>
+        <result column="comment_count" property="commentCount" jdbcType="INTEGER"/>
+        <result column="view_count" property="viewCount" jdbcType="INTEGER"/>
+        <result column="vote_count" property="voteCount" jdbcType="INTEGER"/>
+        <result column="type" property="type" jdbcType="INTEGER"/>
+        <result column="version" property="version" jdbcType="INTEGER"/>
+    </resultMap>
+    <resultMap id="selectSimpleMap" type="com.qnyy.re.business.vo.RedEnvelopeVO">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="uid" property="uid" jdbcType="BIGINT"/>
+        <result column="re_location" property="reLocation" jdbcType="VARCHAR"/>
+        <result column="pic_url" property="picUrl" jdbcType="VARCHAR"/>
+        <result column="content" property="content" jdbcType="LONGVARCHAR"/>
+        <result column="scope" property="scope" jdbcType="INTEGER"/>
+        <result column="comment_count" property="commentCount" jdbcType="INTEGER"/>
+        <result column="created" property="created" jdbcType="TIMESTAMP"/>
+        <result column="view_count" property="viewCount" jdbcType="INTEGER"/>
+        <result column="crowd" property="crowd" jdbcType="INTEGER"/>
+        <result column="vote_count" property="voteCount" jdbcType="INTEGER"/>
+        <result column="state" property="state" jdbcType="INTEGER"/>
+        <result column="draw_time" property="drawTime" jdbcType="TIMESTAMP"/>
+        <association property="user" column="uid" javaType="com.qnyy.re.base.mapper.UserInfoMapper" fetchType="eager"
+                     select="com.qnyy.re.base.mapper.UserInfoMapper.selectByPrimaryKey"/>
+    </resultMap>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+        insert into `re_moment` (uid, pic_url, state, re_amount, re_num, draw_amount,location,re_location, scope,
+        district_id, city_id, crowd,store_id,shop_id, link_to, content,`type`)
+        values (#{uid,jdbcType=BIGINT}, #{picUrl,jdbcType=VARCHAR}, #{state,jdbcType=INTEGER},
+        #{reAmount,jdbcType=DECIMAL}, #{reNum,jdbcType=INTEGER}, #{drawAmount,jdbcType=DECIMAL},
+        POINT(#{userLng},#{userLat}),POINT(#{reLng},#{reLat}), #{scope,jdbcType=INTEGER},
+        #{districtId,jdbcType=INTEGER}, #{cityId,jdbcType=INTEGER}, #{crowd,jdbcType=INTEGER}, #{storeId},#{shopId},
+        #{linkTo,jdbcType=VARCHAR}, #{content,jdbcType=LONGVARCHAR},#{type})
+    </insert>
+    <update id="updateByPrimaryKey">
+        update `re_moment`
+        set
+        state = #{state,jdbcType=INTEGER},
+        re_amount = #{reAmount,jdbcType=DECIMAL},
+        re_num = #{reNum,jdbcType=INTEGER},
+        draw_amount = #{drawAmount,jdbcType=DECIMAL},
+        draw_count = #{drawCount,jdbcType=INTEGER},
+        comment_count = #{commentCount},
+        view_count = #{viewCount},
+        vote_count = #{voteCount},
+        pic_url = #{picUrl},
+        version = version + 1
+        where id = #{id,jdbcType=BIGINT} AND version = #{version}
+    </update>
+    <update id="updateReMomentState">
+        UPDATE `re_moment` SET state = #{state} where id = #{id}
+    </update>
+    <sql id="base_column">
+        m.id, m.uid, m.pic_url, m.state, m.re_amount, m.re_num, m.draw_amount, m.draw_count, ASTEXT(m.location) AS location, ASTEXT(m.re_location) AS re_location,
+        m.scope, m.district_id, m.city_id, m.crowd,m.store_id,m.shop_id, m.link_to, m.content,m.comment_count,m.view_count,m.vote_count,m.created,m.type,m.version
+
+    </sql>
+    <sql id="query_item_column">
+      <include refid="base_column"/>
+        <if test="queryType == 0">
+            ,i.draw_time,i.state AS drawState
+        </if>
+    </sql>
+    <select id="selectByPrimaryKey" resultMap="selectOneMap">
+        select
+        <include refid="base_column"/>
+        from `re_moment` m
+        where m.id = #{id,jdbcType=BIGINT}
+    </select>
+    <sql id="base_where">
+        <where>
+            <if test="queryType == 0 and uid >= 0">
+                AND i.uid = #{uid}
+            </if>
+            <if test="queryType != 0 and uid >= 0">
+                AND m.uid = #{uid}
+            </if>
+            <if test="queryType == 0 and queryDate != null">
+                AND TO_DAYS(i.draw_time) = TO_DAYS(#{queryDate})
+            </if>
+            <if test="types != null">
+                AND (m.type IN
+                <foreach collection="types" open="(" close=")" separator="," item="ty">
+                    #{ty}
+                </foreach>
+                OR m.type IS NULL)
+            </if>
+            <if test="queryType == 0 and states != null">
+                AND i.state IN
+                <foreach collection="states" open="(" close=")" separator="," item="st">
+                    #{st}
+                </foreach>
+            </if>
+            <if test="queryType != 0 and states != null">
+                AND m.state IN
+                <foreach collection="states" open="(" close=")" separator="," item="st">
+                    #{st}
+                </foreach>
+            </if>
+            <if test="reIds != null">
+                AND m.id IN
+                <foreach collection="reIds" open="(" close=")" separator="," item="reId">
+                    #{reId}
+                </foreach>
+            </if>
+            <if test="crowds != null">
+                AND m.crowd IN
+                <foreach collection="crowds" open="(" close=")" separator="," item="crowd">
+                    #{crowd}
+                </foreach>
+            </if>
+            <if test="storeId != null">
+                AND m.store_id = #{storeId}
+            </if>
+            <if test="queryType != 0 and lng != null">
+                AND (
+                (m.scope = 1 AND ST_DISTANCE(m.re_location,point(#{lng},#{lat})) * 111195 &lt;= #{distance})
+                OR (m.scope = 2 AND m.district_id = #{districtId})
+                OR (m.scope = 3 AND m.city_id = #{cityId})
+                OR (m.scope = 4)
+                )
+            </if>
+            <if test="queryType != 0 and removeUid > 0">
+                AND NOT exists(SELECT 1 FROM re_item i2 LEFT JOIN re_moment m2 ON m2.id = i2.re_id WHERE i2.uid = #{removeUid} AND m2.id = m.id)
+            </if>
+        </where>
+    </sql>
+    <sql id="base_table">
+        `re_moment` m
+        <if test="queryType == 0">
+            RIGHT JOIN re_item i ON(m.id = i.re_id)
+        </if>
+    </sql>
+    <select id="queryCount" resultType="java.lang.Integer">
+        SELECT COUNT(m.id)
+        FROM
+        <include refid="base_table"/>
+        <include refid="base_where"/>
+    </select>
+    <select id="selectUserStatisticsByReMoment" resultMap="com.qnyy.re.base.mapper.UserStatisticsMapper.BaseResultMap">
+        SELECT
+        <include refid="com.qnyy.re.base.mapper.UserStatisticsMapper.base_column"/>
+        FROM `user_statistics`
+        WHERE uid = (SELECT uid FROM `re_moment` WHERE id = #{reId})
+    </select>
+    <select id="selectWithItem" resultMap="BaseResultMap">
+        select
+        <include refid="base_column"/>
+        from `re_moment` m
+        where m.id = #{id,jdbcType=BIGINT}
+    </select>
+    <select id="query" resultMap="selectSimpleMap">
+        SELECT
+        <include refid="query_item_column"/>
+        FROM
+        <include refid="base_table"/>
+        <include refid="base_where"/>
+        <choose>
+            <when test="orderBy != null">
+                ORDER BY ${orderBy}
+            </when>
+            <when test="reIds != null">
+                ORDER BY
+                <foreach collection="reIds" open="FIELD(m.id," close=")" separator="," item="reId">
+                    #{reId}
+                </foreach>
+            </when>
+        </choose>
+        LIMIT #{start},#{pageSize}
+    </select>
+    <select id="getSingleRe" resultMap="selectSimpleMap">
+        SELECT
+        <include refid="base_column"/>
+        FROM `re_moment` m WHERE m.type = 1 AND m.id = #{id}
+    </select>
+    <select id="querySingleReDrawCount" resultType="java.lang.Integer">
+        SELECT COUNT(i.id) FROM re_moment m LEFT JOIN re_item i ON (m.id = i.re_id) WHERE m.type = 1 AND
+        ((i.uid = #{to} AND m.uid = #{from}) OR (i.uid = #{from} AND m.uid = #{to}))
+    </select>
+</mapper>

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qnyy.re.business.mapper.BaseOrderMapper" >
+  <resultMap id="BaseResultMap" type="com.qnyy.re.business.entity.BaseOrder" >
+    <id column="id" property="id" jdbcType="BIGINT" />
+    <result column="order_id" property="orderId" jdbcType="VARCHAR" />
+    <result column="type" property="type" jdbcType="VARCHAR" />
+    <result column="state" property="state" jdbcType="INTEGER" />
+  </resultMap>
+  <insert id="insert" useGeneratedKeys="true" keyProperty="id" >
+    insert into `base_order` (order_id, `type`, state,uid)
+    values (#{orderId,jdbcType=VARCHAR}, #{type,jdbcType=VARCHAR}, #{state,jdbcType=INTEGER},#{uid})
+  </insert>
+  <sql id="base_set">
+    set
+      state = #{state,jdbcType=INTEGER},
+      pay_amount = #{payAmount,jdbcType=DECIMAL},
+      pay_time = #{payTime,jdbcType=TIMESTAMP},
+      pay_type = #{payType,jdbcType=VARCHAR},
+      out_trade_no = #{outTradeNo,jdbcType=VARCHAR},
+      version = version + 1
+    where id = #{id,jdbcType=BIGINT} AND version = #{version}
+  </sql>
+  <update id="updateByPrimaryKey" >
+    update `base_order`
+    set state = #{state,jdbcType=INTEGER}
+    where order_id = #{orderId}
+  </update>
+  <sql id="base_column">
+    id, order_id, `type`, state, created, updated
+  </sql>
+  <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+    select
+    <include refid="base_column"/>
+    from `base_order`
+    where id = #{id,jdbcType=BIGINT}
+  </select>
+  <select id="selectAll" resultMap="BaseResultMap" >
+    select
+    <include refid="base_column"/>
+    from `base_order`
+  </select>
+    <select id="getByOrderId" resultMap="BaseResultMap">
+      SELECT
+      <include refid="base_column"/>
+      FROM `base_order`
+      WHERE order_id = #{orderId}
+    </select>
+  <select id="selectByOrderId" resultType="com.qnyy.re.business.entity.BaseOrder">
+     select id, order_id, type, state, created, updated
+    from `base_order`
+    where order_id = #{orderId,jdbcType=VARCHAR}
+  </select>
+
+
+</mapper>

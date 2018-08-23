@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.qnyy.re.business.mapper.RechargeOrderMapper">
+    <resultMap id="BaseResultMap" type="com.qnyy.re.business.entity.RechargeOrder">
+        <id column="id" property="id" jdbcType="BIGINT"/>
+        <result column="uid" property="uid" jdbcType="BIGINT"/>
+        <result column="order_id" property="orderId" jdbcType="VARCHAR"/>
+        <result column="state" property="state" jdbcType="INTEGER"/>
+        <result column="amount" property="amount" jdbcType="DECIMAL"/>
+        <result column="pay_amount" property="payAmount" jdbcType="DECIMAL"/>
+        <result column="pay_time" property="payTime" jdbcType="TIMESTAMP"/>
+        <result column="pay_type" property="payType" jdbcType="VARCHAR"/>
+        <result column="out_trade_no" property="outTradeNo" jdbcType="VARCHAR"/>
+        <result column="created" property="created" jdbcType="TIMESTAMP"/>
+        <result column="version" property="version" jdbcType="INTEGER"/>
+    </resultMap>
+    <insert id="insert" useGeneratedKeys="true" keyProperty="id">
+    insert into `recharge_order` (uid, order_id, state, amount, pay_amount, pay_time, pay_type, out_trade_no)
+    values (#{uid,jdbcType=BIGINT}, #{orderId,jdbcType=VARCHAR}, #{state,jdbcType=INTEGER}, 
+      #{amount,jdbcType=DECIMAL}, #{payAmount,jdbcType=DECIMAL}, #{payTime,jdbcType=TIMESTAMP}, 
+      #{payType,jdbcType=VARCHAR}, #{outTradeNo,jdbcType=VARCHAR} )
+  </insert>
+    <update id="updateByPrimaryKey">
+        update `recharge_order`
+        <include refid="com.qnyy.re.business.mapper.BaseOrderMapper.base_set"/>
+    </update>
+    <sql id="base_column">
+        id, uid, order_id, state, amount, pay_amount, pay_time, pay_type, out_trade_no, created, version
+    </sql>
+    <select id="selectByPrimaryKey" resultMap="BaseResultMap">
+        select
+        <include refid="base_column"/>
+        from `recharge_order`
+        where id = #{id,jdbcType=BIGINT}
+    </select>
+    <select id="selectAll" resultMap="BaseResultMap">
+        select
+        <include refid="base_column"/>
+        from `recharge_order`
+    </select>
+    <select id="getByOrderId" resultMap="BaseResultMap">
+        SELECT
+        <include refid="base_column"/>
+        FROM `recharge_order` WHERE order_id = #{orderId}
+    </select>
+</mapper>
