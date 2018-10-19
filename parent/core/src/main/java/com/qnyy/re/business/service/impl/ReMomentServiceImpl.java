@@ -34,6 +34,7 @@ import com.qnyy.re.business.vo.RedEnvelopeVO;
 import com.qnyy.re.business.vo.param.*;
 import lombok.extern.log4j.Log4j;
 import org.apache.commons.collections.CollectionUtils;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -122,8 +123,8 @@ public class ReMomentServiceImpl implements IReMomentService {
         re.setShopId(vo.getShopId());
         AddressComponentVO address = AmapUtil.getAddressByLocation(re.getReLng(), re.getReLat());
         if (address != null) {
-            re.setCityId(address.getCitycode());
-            re.setDistrictId(address.getAdcode());
+            re.setCityId(NumberUtils.toInt(address.getCitycode()));
+            re.setDistrictId(NumberUtils.toInt(address.getAdcode()));
         }
         if (CollectionUtils.isNotEmpty(vo.getFileId())) {
             List<UploadFile> files = fileService.queryFile(vo.getFileId());
@@ -208,8 +209,8 @@ public class ReMomentServiceImpl implements IReMomentService {
         if (address == null) {
             throw new BusinessException(CommonErrorResultEnum.LOCATION_ERROR);
         }
-        qo.setCityId(address.getCitycode());
-        qo.setDistrictId(address.getAdcode());
+        qo.setCityId(NumberUtils.toInt(address.getCitycode()));
+        qo.setDistrictId(NumberUtils.toInt(address.getAdcode()));
         qo.setStates(new int[]{ReMomentStateEnum.NORMAL.getCode()});
         qo.setQueryType(ReMomentQueryObject.QUERY_PAY_RE);
         qo.setPageSize(50);

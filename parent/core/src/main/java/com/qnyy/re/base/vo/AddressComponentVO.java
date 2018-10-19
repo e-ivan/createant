@@ -17,9 +17,9 @@ public class AddressComponentVO {
     private String country = ""; //国家
     private String province = "";//省份
     private String city = "";//城市
-    private Integer citycode;//城市编码
+    private String citycode;//城市编码
     private String district = "";//区
-    private Integer adcode;//行政区编码
+    private String adcode;//行政区编码
     private String township = "";//乡镇/街道
-    private Long towncode;//乡镇街道编码
+    private String towncode;//乡镇街道编码
 }
