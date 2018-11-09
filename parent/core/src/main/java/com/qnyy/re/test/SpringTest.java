@@ -1,6 +1,5 @@
 package com.qnyy.re.test;
 
-import com.qnyy.re.base.entity.UserInfo;
 import com.qnyy.re.base.mapper.UserFansMapper;
 import com.qnyy.re.base.mapper.UserInfoMapper;
 import com.qnyy.re.base.mapper.UserStatisticsMapper;
@@ -9,6 +8,7 @@ import com.qnyy.re.base.service.ISysBroadcastService;
 import com.qnyy.re.base.service.IUserAccountService;
 import com.qnyy.re.base.util.AmapUtil;
 import com.qnyy.re.base.util.SubmailSmsUtil;
+import com.qnyy.re.base.vo.AddressComponentVO;
 import com.qnyy.re.business.mapper.BaseOrderMapper;
 import com.qnyy.re.business.mapper.ReItemMapper;
 import com.qnyy.re.business.mapper.ReMomentMapper;
@@ -18,6 +18,7 @@ import com.qnyy.re.business.service.ICashService;
 import com.qnyy.re.business.service.IReMomentService;
 import com.qnyy.re.business.service.IUserClassRelationService;
 import lombok.extern.log4j.Log4j;
+import org.apache.commons.lang3.math.NumberUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -85,7 +86,8 @@ public class SpringTest {
 
     @Test
     public void testDDD() throws Exception {
-        System.out.println(AmapUtil.getAddressByLocation("113.56049","22.270026"));
+        AddressComponentVO addressByLocation = AmapUtil.getAddressByLocation("103.86521388372", "30.791939841354");
+        System.out.println(addressByLocation);
     }
 
     @Test
@@ -99,9 +101,7 @@ public class SpringTest {
     }
     @Test
     public void testSD() throws Exception {
-        UserInfo userInfo = new UserInfo();
-        userInfo.setNickname("dgdfdf");
-        userInfo.setUid(67L);
+        System.out.println(NumberUtils.toInt("[]"));
     }
 
 }
