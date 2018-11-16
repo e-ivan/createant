@@ -21,8 +21,8 @@
 测试商品(切勿购买),10,999,https://vip.17wo.cn/_goods_detail_2.html?id=20&sf17,https://vip.17wo.cn/_pay_confirm.html?id=20&sf17
 500积分兑换券,0,0,https://vip.17wo.cn/_goods_detail_2.html?id=22&sf17,https://vip.17wo.cn/_pay_confirm.html?id=22&sf17
 新人500积分,0,0,https://vip.17wo.cn/_goods_detail_2.html?id=23&sf17,https://vip.17wo.cn/_pay_confirm.html?id=23&sf17
-商务休息室服务,0,4800,https://vip.17wo.cn/_goods_detail_2.html?id=24&sf17,https://vip.17wo.cn/_pay_confirm.html?id=24&sf17
-商务畅行通道服务,0,4800,https://vip.17wo.cn/_goods_detail_2.html?id=25&sf17,https://vip.17wo.cn/_pay_confirm.html?id=25&sf17
+商务休息室服务,199,4800,https://vip.17wo.cn/_goods_detail_2.html?id=24&sf17,https://vip.17wo.cn/_pay_confirm.html?id=24&sf17
+商务畅行通道服务,199,4800,https://vip.17wo.cn/_goods_detail_2.html?id=25&sf17,https://vip.17wo.cn/_pay_confirm.html?id=25&sf17
 阳光守护3个月免费体验卡,10,0,https://vip.17wo.cn/_goods_detail_2.html?id=27&sf17,https://vip.17wo.cn/_pay_confirm.html?id=27&sf17
 广州南易登车服务,99,0,https://vip.17wo.cn/_goods_detail_2.html?id=28&sf17,https://vip.17wo.cn/_pay_confirm.html?id=28&sf17
 深圳北商务休息室服务,99,0,https://vip.17wo.cn/_goods_detail_2.html?id=29&sf17,https://vip.17wo.cn/_pay_confirm.html?id=29&sf17
@@ -37,7 +37,7 @@
 小米（MI）运动蓝牙耳机,10,0,https://vip.17wo.cn/_goods_detail_2.html?id=39&sf17,https://vip.17wo.cn/_pay_confirm.html?id=39&sf17
 阳光守护权益礼包（含6个月使用权）,10,0,https://vip.17wo.cn/_goods_detail_2.html?id=40&sf17,https://vip.17wo.cn/_pay_confirm.html?id=40&sf17
 广东联通10元话费,10,0,https://vip.17wo.cn/_goods_detail_2.html?id=41&sf17,https://vip.17wo.cn/_pay_confirm.html?id=41&sf17
-电影票兑换券(14期超级星期五专享),1399,1,https://vip.17wo.cn/_goods_detail_2.html?id=42&sf17,https://vip.17wo.cn/_pay_confirm.html?id=42&sf17
+电影票兑换券,199,0,https://vip.17wo.cn/_goods_detail_2.html?id=42&sf17,https://vip.17wo.cn/_pay_confirm.html?id=42&sf17
 若比邻小程序50元新人大礼包,10,10,https://vip.17wo.cn/_goods_detail_2.html?id=43&sf17,https://vip.17wo.cn/_pay_confirm.html?id=43&sf17
 保利公寓85折特权,10,10,https://vip.17wo.cn/_goods_detail_2.html?id=44&sf17,https://vip.17wo.cn/_pay_confirm.html?id=44&sf17
 比邻洗衣免洗券,0,1,https://vip.17wo.cn/_goods_detail_2.html?id=45&sf17,https://vip.17wo.cn/_pay_confirm.html?id=45&sf17
@@ -88,7 +88,7 @@ Vipkid英语在线课程,10,0,https://vip.17wo.cn/_goods_detail_2.html?id=88&sf17,http
 100元沃乐送电子券,10,0,https://vip.17wo.cn/_goods_detail_2.html?id=91&sf17,https://vip.17wo.cn/_pay_confirm.html?id=91&sf17
 500元沃乐送电子券,10,0,https://vip.17wo.cn/_goods_detail_2.html?id=92&sf17,https://vip.17wo.cn/_pay_confirm.html?id=92&sf17
 1000元沃乐送电子券,999,0,https://vip.17wo.cn/_goods_detail_2.html?id=93&sf17,https://vip.17wo.cn/_pay_confirm.html?id=93&sf17
-白云机场服务(四五星专享),199,10,https://vip.17wo.cn/_goods_detail_2.html?id=94&sf17,https://vip.17wo.cn/_pay_confirm.html?id=94&sf17
+白云机场服务,199,10,https://vip.17wo.cn/_goods_detail_2.html?id=94&sf17,https://vip.17wo.cn/_pay_confirm.html?id=94&sf17
 高铁商务VIP服务（四五星专享）,199,4800,https://vip.17wo.cn/_goods_detail_2.html?id=95&sf17,https://vip.17wo.cn/_pay_confirm.html?id=95&sf17
 白云机场服务(14期超级星期五专享),699,10,https://vip.17wo.cn/_goods_detail_2.html?id=96&sf17,https://vip.17wo.cn/_pay_confirm.html?id=96&sf17
 高铁商务VIP服务(14期超级星期五专享),599,4800,https://vip.17wo.cn/_goods_detail_2.html?id=97&sf17,https://vip.17wo.cn/_pay_confirm.html?id=97&sf17
@@ -104,7 +104,7 @@ JBL耳机,1,0,https://vip.17wo.cn/_goods_detail_2.html?id=104&sf17,https://vip.17w
 国美自营满199减10优惠券,0,0,https://vip.17wo.cn/_goods_detail_2.html?id=108&sf17,https://vip.17wo.cn/_pay_confirm.html?id=108&sf17
 国美自营满1000减50优惠券,0,0,https://vip.17wo.cn/_goods_detail_2.html?id=109&sf17,https://vip.17wo.cn/_pay_confirm.html?id=109&sf17
 来电管家3个月免费体验,10,0,https://vip.17wo.cn/_goods_detail_2.html?id=110&sf17,https://vip.17wo.cn/_pay_confirm.html?id=110&sf17
-腾讯视频VIP月卡,2000,1,https://vip.17wo.cn/_goods_detail_2.html?id=111&sf17,https://vip.17wo.cn/_pay_confirm.html?id=111&sf17
+腾讯视频VIP月卡,199,0,https://vip.17wo.cn/_goods_detail_2.html?id=111&sf17,https://vip.17wo.cn/_pay_confirm.html?id=111&sf17
 500,,,https://vip.17wo.cn/_goods_detail_2.html?id=112&sf17,https://vip.17wo.cn/_pay_confirm.html?id=112&sf17
 1000,,,https://vip.17wo.cn/_goods_detail_2.html?id=113&sf17,https://vip.17wo.cn/_pay_confirm.html?id=113&sf17
 腾讯视频VIP月卡(老用户回馈),39999,1,https://vip.17wo.cn/_goods_detail_2.html?id=114&sf17,https://vip.17wo.cn/_pay_confirm.html?id=114&sf17
@@ -144,9 +144,9 @@ QQ豪华版绿钻会员月卡,10,1,https://vip.17wo.cn/_goods_detail_2.html?id=117&sf17,h
 善诊关爱父母免费体检券,99,3000,https://vip.17wo.cn/_goods_detail_2.html?id=148&sf17,https://vip.17wo.cn/_pay_confirm.html?id=148&sf17
 快买酒 法国帕克索红酒兑换券,99,3000,https://vip.17wo.cn/_goods_detail_2.html?id=149&sf17,https://vip.17wo.cn/_pay_confirm.html?id=149&sf17
 租租车免费国际驾照办理券,99,3000,https://vip.17wo.cn/_goods_detail_2.html?id=150&sf17,https://vip.17wo.cn/_pay_confirm.html?id=150&sf17
-东莞抽奖活动(占坑),,,https://vip.17wo.cn/_goods_detail_2.html?id=151&sf17,https://vip.17wo.cn/_pay_confirm.html?id=151&sf17
-东莞卖座网电影票(占坑),,,https://vip.17wo.cn/_goods_detail_2.html?id=152&sf17,https://vip.17wo.cn/_pay_confirm.html?id=152&sf17
-东莞腾讯视频(占坑),,,https://vip.17wo.cn/_goods_detail_2.html?id=153&sf17,https://vip.17wo.cn/_pay_confirm.html?id=153&sf17
+东莞用户腾讯视频,0,,https://vip.17wo.cn/_goods_detail_2.html?id=151&sf17,https://vip.17wo.cn/_pay_confirm.html?id=151&sf17
+东莞用户卖座网电影票,10,,https://vip.17wo.cn/_goods_detail_2.html?id=152&sf17,https://vip.17wo.cn/_pay_confirm.html?id=152&sf17
+东莞用户腾讯视频,10,,https://vip.17wo.cn/_goods_detail_2.html?id=153&sf17,https://vip.17wo.cn/_pay_confirm.html?id=153&sf17
 宽带月卡(占坑),,,https://vip.17wo.cn/_goods_detail_2.html?id=154&sf17,https://vip.17wo.cn/_pay_confirm.html?id=154&sf17
 宽带季卡(占坑),,,https://vip.17wo.cn/_goods_detail_2.html?id=155&sf17,https://vip.17wo.cn/_pay_confirm.html?id=155&sf17
 幸福西饼20元无门槛代金券,199,1,https://vip.17wo.cn/_goods_detail_2.html?id=156&sf17,https://vip.17wo.cn/_pay_confirm.html?id=156&sf17
@@ -156,3 +156,10 @@ QQ豪华版绿钻会员月卡,10,1,https://vip.17wo.cn/_goods_detail_2.html?id=117&sf17,h
 卡通10000毫安移动电源,199,0,https://vip.17wo.cn/_goods_detail_2.html?id=160&sf17,https://vip.17wo.cn/_pay_confirm.html?id=160&sf17
 神聪便携迷你蓝牙小音箱,199,0,https://vip.17wo.cn/_goods_detail_2.html?id=161&sf17,https://vip.17wo.cn/_pay_confirm.html?id=161&sf17
 唯品会30元购物红包,1,1,https://vip.17wo.cn/_goods_detail_2.html?id=162&sf17,https://vip.17wo.cn/_pay_confirm.html?id=162&sf17
+懒人听书VIP周卡,,,https://vip.17wo.cn/_goods_detail_2.html?id=163&sf17,https://vip.17wo.cn/_pay_confirm.html?id=163&sf17
+天猫50元无门槛代金券,,,https://vip.17wo.cn/_goods_detail_2.html?id=164&sf17,https://vip.17wo.cn/_pay_confirm.html?id=164&sf17
+京东50无门槛代金券,,,https://vip.17wo.cn/_goods_detail_2.html?id=165&sf17,https://vip.17wo.cn/_pay_confirm.html?id=165&sf17
+读书卡八折券,,,https://vip.17wo.cn/_goods_detail_2.html?id=166&sf17,https://vip.17wo.cn/_pay_confirm.html?id=166&sf17
+kindle,,,https://vip.17wo.cn/_goods_detail_2.html?id=167&sf17,https://vip.17wo.cn/_pay_confirm.html?id=167&sf17
+天猫100无门槛代金券,499,1,https://vip.17wo.cn/_goods_detail_2.html?id=168&sf17,https://vip.17wo.cn/_pay_confirm.html?id=168&sf17
+京东100无门槛代金券,499,1,https://vip.17wo.cn/_goods_detail_2.html?id=169&sf17,https://vip.17wo.cn/_pay_confirm.html?id=169&sf17
