@@ -1,5 +1,5 @@
 商品,积分,库存,详情页,购买页
-电影票兑换劵,3000,100,https://vip.17wo.cn/_goods_detail_2.html?id=1&sf17,https://vip.17wo.cn/_pay_confirm.html?id=1&sf17
+电影票兑换劵,3000,0,https://vip.17wo.cn/_goods_detail_2.html?id=1&sf17,https://vip.17wo.cn/_pay_confirm.html?id=1&sf17
 3元电影优惠,10,0,https://vip.17wo.cn/_goods_detail_2.html?id=2&sf17,https://vip.17wo.cn/_pay_confirm.html?id=2&sf17
 5元电影票优惠劵,10,0,https://vip.17wo.cn/_goods_detail_2.html?id=3&sf17,https://vip.17wo.cn/_pay_confirm.html?id=3&sf17
 9.9购电影票特权,2000,0,https://vip.17wo.cn/_goods_detail_2.html?id=4&sf17,https://vip.17wo.cn/_pay_confirm.html?id=4&sf17
@@ -144,11 +144,11 @@ QQ豪华版绿钻会员月卡,10,1,https://vip.17wo.cn/_goods_detail_2.html?id=117&sf17,h
 善诊关爱父母免费体检券,99,3000,https://vip.17wo.cn/_goods_detail_2.html?id=148&sf17,https://vip.17wo.cn/_pay_confirm.html?id=148&sf17
 快买酒 法国帕克索红酒兑换券,99,3000,https://vip.17wo.cn/_goods_detail_2.html?id=149&sf17,https://vip.17wo.cn/_pay_confirm.html?id=149&sf17
 租租车免费国际驾照办理券,99,3000,https://vip.17wo.cn/_goods_detail_2.html?id=150&sf17,https://vip.17wo.cn/_pay_confirm.html?id=150&sf17
-东莞用户腾讯视频,0,,https://vip.17wo.cn/_goods_detail_2.html?id=151&sf17,https://vip.17wo.cn/_pay_confirm.html?id=151&sf17
+东莞用户腾讯视频,0,0,https://vip.17wo.cn/_goods_detail_2.html?id=151&sf17,https://vip.17wo.cn/_pay_confirm.html?id=151&sf17
 东莞用户卖座网电影票,10,,https://vip.17wo.cn/_goods_detail_2.html?id=152&sf17,https://vip.17wo.cn/_pay_confirm.html?id=152&sf17
 东莞用户腾讯视频,10,,https://vip.17wo.cn/_goods_detail_2.html?id=153&sf17,https://vip.17wo.cn/_pay_confirm.html?id=153&sf17
-宽带月卡(占坑),,,https://vip.17wo.cn/_goods_detail_2.html?id=154&sf17,https://vip.17wo.cn/_pay_confirm.html?id=154&sf17
-宽带季卡(占坑),,,https://vip.17wo.cn/_goods_detail_2.html?id=155&sf17,https://vip.17wo.cn/_pay_confirm.html?id=155&sf17
+视频通兑卡月卡,,,https://vip.17wo.cn/_goods_detail_2.html?id=154&sf17,https://vip.17wo.cn/_pay_confirm.html?id=154&sf17
+视频通兑卡季卡,,500,https://vip.17wo.cn/_goods_detail_2.html?id=155&sf17,https://vip.17wo.cn/_pay_confirm.html?id=155&sf17
 幸福西饼20元无门槛代金券,199,1,https://vip.17wo.cn/_goods_detail_2.html?id=156&sf17,https://vip.17wo.cn/_pay_confirm.html?id=156&sf17
 星巴克30元无门槛代金券,199,0,https://vip.17wo.cn/_goods_detail_2.html?id=157&sf17,https://vip.17wo.cn/_pay_confirm.html?id=157&sf17
 百果园20元无门槛代金券,199,0,https://vip.17wo.cn/_goods_detail_2.html?id=158&sf17,https://vip.17wo.cn/_pay_confirm.html?id=158&sf17
@@ -163,3 +163,20 @@ QQ豪华版绿钻会员月卡,10,1,https://vip.17wo.cn/_goods_detail_2.html?id=117&sf17,h
 kindle,,,https://vip.17wo.cn/_goods_detail_2.html?id=167&sf17,https://vip.17wo.cn/_pay_confirm.html?id=167&sf17
 天猫100无门槛代金券,499,1,https://vip.17wo.cn/_goods_detail_2.html?id=168&sf17,https://vip.17wo.cn/_pay_confirm.html?id=168&sf17
 京东100无门槛代金券,499,1,https://vip.17wo.cn/_goods_detail_2.html?id=169&sf17,https://vip.17wo.cn/_pay_confirm.html?id=169&sf17
+视频通兑卡月卡,,,https://vip.17wo.cn/_goods_detail_2.html?id=170&sf17,https://vip.17wo.cn/_pay_confirm.html?id=170&sf17
+音乐竞猜,10,1,https://vip.17wo.cn/_goods_detail_2.html?id=171&sf17,https://vip.17wo.cn/_pay_confirm.html?id=171&sf17
+王力宏“龙的传人2060”巡回演唱会门票,,1,https://vip.17wo.cn/_goods_detail_2.html?id=172&sf17,https://vip.17wo.cn/_pay_confirm.html?id=172&sf17
+王力宏“龙的传人”巡回演唱会门票,,1,https://vip.17wo.cn/_goods_detail_2.html?id=173&sf17,https://vip.17wo.cn/_pay_confirm.html?id=173&sf17
+唯品会20元购物券,1,1,https://vip.17wo.cn/_goods_detail_2.html?id=174&sf17,https://vip.17wo.cn/_pay_confirm.html?id=174&sf17
+沃音乐会员畅享包,,1,https://vip.17wo.cn/_goods_detail_2.html?id=175&sf17,https://vip.17wo.cn/_pay_confirm.html?id=175&sf17
+100元沃音乐京东商城樊登读书会员优惠券,,1,https://vip.17wo.cn/_goods_detail_2.html?id=176&sf17,https://vip.17wo.cn/_pay_confirm.html?id=176&sf17
+10元沃音乐商城通用代金券,,1,https://vip.17wo.cn/_goods_detail_2.html?id=177&sf17,https://vip.17wo.cn/_pay_confirm.html?id=177&sf17
+腾讯视频月卡,,,https://vip.17wo.cn/_goods_detail_2.html?id=178&sf17,https://vip.17wo.cn/_pay_confirm.html?id=178&sf17
+2/3D电影票兑换券,,,https://vip.17wo.cn/_goods_detail_2.html?id=179&sf17,https://vip.17wo.cn/_pay_confirm.html?id=179&sf17
+kindle 电子书,,,https://vip.17wo.cn/_goods_detail_2.html?id=180&sf17,https://vip.17wo.cn/_pay_confirm.html?id=180&sf17
+浩泽厨上净水机,,,https://vip.17wo.cn/_goods_detail_2.html?id=181&sf17,https://vip.17wo.cn/_pay_confirm.html?id=181&sf17
+浩泽厨下净水机,,,https://vip.17wo.cn/_goods_detail_2.html?id=182&sf17,https://vip.17wo.cn/_pay_confirm.html?id=182&sf17
+浩泽智能水探头,,,https://vip.17wo.cn/_goods_detail_2.html?id=183&sf17,https://vip.17wo.cn/_pay_confirm.html?id=183&sf17
+美年大健康体检卡,,,https://vip.17wo.cn/_goods_detail_2.html?id=184&sf17,https://vip.17wo.cn/_pay_confirm.html?id=184&sf17
+美年大健康洗牙护理,,,https://vip.17wo.cn/_goods_detail_2.html?id=185&sf17,https://vip.17wo.cn/_pay_confirm.html?id=185&sf17
+美年大健康公益种牙护理,,,https://vip.17wo.cn/_goods_detail_2.html?id=186&sf17,https://vip.17wo.cn/_pay_confirm.html?id=186&sf17
