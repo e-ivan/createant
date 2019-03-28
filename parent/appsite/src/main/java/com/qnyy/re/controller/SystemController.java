@@ -34,9 +34,11 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -46,6 +48,7 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("system")
 public class SystemController extends BaseController {
+    private static Map<String, Serializable> cacheMap = new ConcurrentHashMap<>();
 
     /**
      * 查询消息日志
@@ -234,6 +237,34 @@ public class SystemController extends BaseController {
         Map<String, Long> map = CreateantRequestUtil.queryUserIdByToken(tokens);
         map.forEach(loginInfoMapper::updateUserCreateantUid);
         return new Response("更新成功" + map.size() + "条内容");
+    }
+
+    @RequestMapping(value = "putData")
+    @UnRequiredLogin(checkSign = false)
+    @ApiDocument("保存数据")
+    public Response putData(String key, String value) {
+        cacheMap.put(key, value);
+        return new Response("保存成功");
+    }
+
+    @RequestMapping(value = "getData")
+    @UnRequiredLogin(checkSign = false)
+    @ApiDocument("获取数据")
+    public Object getData(String key, Integer type) {
+        Object o = StringUtils.equals("ALL_DATA", key) ? cacheMap : cacheMap.get(key);
+        return type != null && type == 0 ? o : new ObjectResponse<>(o);
+    }
+
+    @RequestMapping(value = "clearData")
+    @UnRequiredLogin(checkSign = false)
+    @ApiDocument("清除数据")
+    public Object clearData(String key) {
+        if (StringUtils.equals("ALL_DATA", key)) {
+            cacheMap.clear();
+        } else {
+            cacheMap.remove(key);
+        }
+        return new Response("清除成功");
     }
 
 

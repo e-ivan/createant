@@ -14,7 +14,6 @@ import com.qnyy.re.business.util.OrderUtil;
 import com.qnyy.re.business.vo.PayDetailVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import sun.plugin2.util.SystemUtil;
 
 import java.math.BigDecimal;
 

@@ -88,6 +88,7 @@ public class SpringTest {
     public void testDDD() throws Exception {
         AddressComponentVO addressByLocation = AmapUtil.getAddressByLocation("103.86521388372", "30.791939841354");
         System.out.println(addressByLocation);
+        System.out.println(AmapUtil.getAddressByLocation("103.86521388372","30.791939841354"));
     }
 
     @Test
