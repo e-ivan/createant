@@ -18,7 +18,6 @@ import com.qnyy.re.business.service.ICashService;
 import com.qnyy.re.business.service.IReMomentService;
 import com.qnyy.re.business.service.IUserClassRelationService;
 import lombok.extern.log4j.Log4j;
-import org.apache.commons.lang3.math.NumberUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -102,7 +101,7 @@ public class SpringTest {
     }
     @Test
     public void testSD() throws Exception {
-        System.out.println(NumberUtils.toInt("[]"));
+
     }
 
 }

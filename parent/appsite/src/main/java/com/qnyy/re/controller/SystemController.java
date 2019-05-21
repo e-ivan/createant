@@ -1,6 +1,8 @@
 package com.qnyy.re.controller;
 
 import com.alibaba.fastjson.JSON;
+import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONObject;
 import com.qnyy.re.base.entity.LoginInfo;
 import com.qnyy.re.base.entity.UploadFile;
 import com.qnyy.re.base.entity.UserInfo;
@@ -34,11 +36,13 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -48,7 +52,8 @@ import java.util.stream.Collectors;
 @RestController
 @RequestMapping("system")
 public class SystemController extends BaseController {
-    private static Map<String, Serializable> cacheMap = new ConcurrentHashMap<>();
+    private static Map<String, CharSequence> cacheMap = new ConcurrentHashMap<>();
+    private static Map<String, LinkedList<CharSequence>> cacheMapHistory = new ConcurrentHashMap<>();
 
     /**
      * 查询消息日志
@@ -243,11 +248,53 @@ public class SystemController extends BaseController {
     @UnRequiredLogin(checkSign = false)
     @ApiDocument("保存数据")
     public Response putData(String key, String value) {
+        CharSequence cacheValue = cacheMap.get(key);
+        if (StringUtils.contains(key, ".")) {
+            //如果是有.存在,则获取json
+            if (StringUtils.isNotBlank(cacheValue)) {
+                try {
+                    JSONObject jsonObject = JSON.parseObject(String.valueOf(cacheValue));
+                    //分割key
+                    String[] split = key.trim().split(".");
+                    for (String name : split) {
+
+                    }
+                } catch (Exception ignored) {
+                }
+            }
+        }
+        //保存原来的值到历史
+        if (cacheValue != null) {
+            LinkedList<CharSequence> values = cacheMapHistory.computeIfAbsent(key, s -> new LinkedList<>());
+            if (!StringUtils.equals(values.peek(), value)) {
+                values.push(cacheValue);
+            }
+            if (values.size() > 10) {
+                values.pollLast();
+            }
+        }
         cacheMap.put(key, value);
         return new Response("保存成功");
     }
 
-    @RequestMapping(value = "getData")
+    private static final Pattern PATTERN = Pattern.compile("(\\S+)\\[(\\d+)]$");
+
+    private static JSON getJsonWithName(JSONObject json, String name) {
+        //查看name是否以[d]结尾,如果是,说明是数组
+        boolean matches = name.matches("\\S+\\[\\d+]$");
+        if (matches) {
+            Matcher m = PATTERN.matcher(name);
+            if (m.find()) {
+                String newName = m.group(1);
+                JSONArray array = json.getJSONArray(newName);
+                int index = Integer.parseInt(m.group(2));
+                return array.getJSONObject(index);
+            }
+        }
+        return json.getJSONObject(name);
+    }
+
+    @RequestMapping(value = "getData", produces = "application/json;charset=UTF-8")
     @UnRequiredLogin(checkSign = false)
     @ApiDocument("获取数据")
     public Object getData(String key, Integer type) {
@@ -266,6 +313,4 @@ public class SystemController extends BaseController {
         }
         return new Response("清除成功");
     }
-
-
 }
