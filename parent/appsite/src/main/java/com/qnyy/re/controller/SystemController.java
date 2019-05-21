@@ -250,13 +250,30 @@ public class SystemController extends BaseController {
     public Response putData(String key, String value) {
         CharSequence cacheValue = cacheMap.get(key);
         if (StringUtils.contains(key, ".")) {
+            String[] nameSplit = key.trim().split(".");
+            String keyName = nameSplit[0];
+            boolean isArr = keyName.matches("\\S+\\[\\d+]$");
+            if (isArr) {
+                //如果是数组
+                Matcher m = PATTERN.matcher(keyName);
+                if (m.find()) {
+                    String newName = m.group(1);
+                    CharSequence v = cacheMap.get(newName);
+                    if (StringUtils.isNotBlank(v)) {
+                        
+                    }
+                    int index = Integer.parseInt(m.group(2));
+                }
+            } else {
+                //不是数组
+
+            }
             //如果是有.存在,则获取json
             if (StringUtils.isNotBlank(cacheValue)) {
                 try {
                     JSONObject jsonObject = JSON.parseObject(String.valueOf(cacheValue));
                     //分割key
-                    String[] split = key.trim().split(".");
-                    for (String name : split) {
+                    for (String name : nameSplit) {
 
                     }
                 } catch (Exception ignored) {
