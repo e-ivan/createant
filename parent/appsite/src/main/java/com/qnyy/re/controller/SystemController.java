@@ -44,6 +44,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * 系统通用控制器
@@ -249,36 +250,8 @@ public class SystemController extends BaseController {
     @ApiDocument("保存数据")
     public Response putData(String key, String value) {
         CharSequence cacheValue = cacheMap.get(key);
-        if (StringUtils.contains(key, ".")) {
-            String[] nameSplit = key.trim().split(".");
-            String keyName = nameSplit[0];
-            boolean isArr = keyName.matches("\\S+\\[\\d+]$");
-            if (isArr) {
-                //如果是数组
-                Matcher m = PATTERN.matcher(keyName);
-                if (m.find()) {
-                    String newName = m.group(1);
-                    CharSequence v = cacheMap.get(newName);
-                    if (StringUtils.isNotBlank(v)) {
-                        
-                    }
-                    int index = Integer.parseInt(m.group(2));
-                }
-            } else {
-                //不是数组
-
-            }
-            //如果是有.存在,则获取json
-            if (StringUtils.isNotBlank(cacheValue)) {
-                try {
-                    JSONObject jsonObject = JSON.parseObject(String.valueOf(cacheValue));
-                    //分割key
-                    for (String name : nameSplit) {
-
-                    }
-                } catch (Exception ignored) {
-                }
-            }
+        if (key.matches("[^.]\\S+(\\.)\\S+")) {
+            putValueByKey(key, value);
         }
         //保存原来的值到历史
         if (cacheValue != null) {
@@ -294,21 +267,71 @@ public class SystemController extends BaseController {
         return new Response("保存成功");
     }
 
-    private static final Pattern PATTERN = Pattern.compile("(\\S+)\\[(\\d+)]$");
+    private static final Pattern KEY_INDEX_PATTERN = Pattern.compile("(\\S+)\\[(\\d+)]$");
 
-    private static JSON getJsonWithName(JSONObject json, String name) {
-        //查看name是否以[d]结尾,如果是,说明是数组
-        boolean matches = name.matches("\\S+\\[\\d+]$");
+    private static JSONObject putValueByKey(String key, String value) {
+        String[] nameSplit = key.trim().split("\\.");
+        LinkedList<String> collect = Stream.of(nameSplit).collect(Collectors.toCollection(LinkedList::new));
+        String putKey = collect.pollLast();
+        String first = collect.pollFirst();
+        if (first != null && putKey != null) {
+            JSONObject source = getJsonWithKey(null, first);
+            JSONObject target = getJsonWithKey(source, collect);
+            Object putObj = target.get(putKey);
+            if (putObj instanceof JSONArray) {
+                //如果是数组,新增
+                JSONArray array = (JSONArray) putObj;
+                if (value.matches(arrRegex)) {
+                    array.addAll(JSON.parseArray(value));
+                } else {
+                    array.add(value);
+                }
+            } else {
+                //否则直接替换
+                if (value.matches(arrRegex)) {
+                    target.put(putKey, JSON.parseArray(value));
+                } else {
+                    target.put(putKey, value);
+                }
+            }
+            return source;
+        }
+        return null;
+    }
+
+    private static JSONObject getJsonWithKey(JSONObject json, LinkedList<String> keys) {
+        String key = keys.pollFirst();
+        if (key != null) {
+            JSONObject j = getJsonWithKey(json, key);
+            return getJsonWithKey(j, keys);
+        }
+        return json;
+    }
+
+    private static String regex = "\\S+\\[\\d+]$";
+    private static String arrRegex = "\\s*\\[\\S+]\\s*";
+
+    private static JSONObject getJsonWithKey(JSONObject json, String key) {
+        //查看name是否以[d]结尾,如果是说明是数组,数组获取索引所在的对象
+        boolean matches = key.matches(regex);
         if (matches) {
-            Matcher m = PATTERN.matcher(name);
+            Matcher m = KEY_INDEX_PATTERN.matcher(key);
             if (m.find()) {
-                String newName = m.group(1);
-                JSONArray array = json.getJSONArray(newName);
+                String realKey = m.group(1);
+                JSONArray array;
+                if (json == null) {
+                    array = JSON.parseArray(String.valueOf(cacheMap.get(realKey)));
+                } else {
+                    array = json.getJSONArray(realKey);
+                }
                 int index = Integer.parseInt(m.group(2));
                 return array.getJSONObject(index);
             }
         }
-        return json.getJSONObject(name);
+        if (json == null) {
+            return JSONObject.parseObject(String.valueOf(cacheMap.get(key)));
+        }
+        return json.getJSONObject(key);
     }
 
     @RequestMapping(value = "getData", produces = "application/json;charset=UTF-8")
