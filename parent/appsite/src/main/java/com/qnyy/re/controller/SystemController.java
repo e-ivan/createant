@@ -2,6 +2,7 @@ package com.qnyy.re.controller;
 
 import com.alibaba.fastjson.JSON;
 import com.alibaba.fastjson.JSONArray;
+import com.alibaba.fastjson.JSONException;
 import com.alibaba.fastjson.JSONObject;
 import com.qnyy.re.base.entity.LoginInfo;
 import com.qnyy.re.base.entity.UploadFile;
@@ -26,6 +27,8 @@ import com.qnyy.re.business.util.WeiXinMpRequestUtil;
 import com.qnyy.re.business.vo.param.CreateInformantVO;
 import com.qnyy.re.business.vo.param.SaveFeedbackVO;
 import com.qnyy.re.util.SignUtil;
+import lombok.Getter;
+import lombok.Setter;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -36,10 +39,7 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -248,10 +248,10 @@ public class SystemController extends BaseController {
     @RequestMapping(value = "putData")
     @UnRequiredLogin(checkSign = false)
     @ApiDocument("保存数据")
-    public Response putData(String key, String value) {
+    public Response putData(String key, String value, boolean replace) {
         CharSequence cacheValue = cacheMap.get(key);
         if (key.matches("[^.]\\S+(\\.)\\S+")) {
-            putValueByKey(key, value);
+            putValueByKey(key, value, replace);
         }
         //保存原来的值到历史
         if (cacheValue != null) {
@@ -269,69 +269,114 @@ public class SystemController extends BaseController {
 
     private static final Pattern KEY_INDEX_PATTERN = Pattern.compile("(\\S+)\\[(\\d+)]$");
 
-    private static JSONObject putValueByKey(String key, String value) {
+    private static JSONObject putValueByKey(String key, String value, boolean replace) {
         String[] nameSplit = key.trim().split("\\.");
         LinkedList<String> collect = Stream.of(nameSplit).collect(Collectors.toCollection(LinkedList::new));
         String putKey = collect.pollLast();
         String first = collect.pollFirst();
         if (first != null && putKey != null) {
             JSONObject source = getJsonWithKey(null, first);
-            JSONObject target = getJsonWithKey(source, collect);
-            Object putObj = target.get(putKey);
-            if (putObj instanceof JSONArray) {
-                //如果是数组,新增
-                JSONArray array = (JSONArray) putObj;
-                if (value.matches(arrRegex)) {
-                    array.addAll(JSON.parseArray(value));
+            if (source != null) {
+                JSONObject target = getJsonWithKey(source, collect);
+                KeyIndex keyIndex = new KeyIndex(putKey);
+                Object putObj = target.get(keyIndex.getKey());
+                Object valueObj = parseValue(value);
+                if ((!replace || keyIndex.isArr) && putObj instanceof JSONArray) {
+                    JSONArray array = (JSONArray) putObj;
+                    if (keyIndex.isArr) {
+                        //这里是替换
+                        array.set(keyIndex.getIndex(), valueObj);
+                    } else {
+                        if (valueObj instanceof Collection) {
+                            //集合处理
+                            array.addAll((Collection<?>) valueObj);
+                        } else {
+                            array.add(valueObj);
+                        }
+                    }
                 } else {
-                    array.add(value);
+                    //否则直接替换
+                    target.put(keyIndex.getKey(), valueObj);
                 }
-            } else {
-                //否则直接替换
-                if (value.matches(arrRegex)) {
-                    target.put(putKey, JSON.parseArray(value));
-                } else {
-                    target.put(putKey, value);
-                }
+                cacheMap.put(first, JSON.toJSONString(source));
+                return source;
             }
-            return source;
         }
         return null;
+    }
+
+    private static Object parseValue(String value) {
+        if (value.matches(jsonRegex)) {
+            return JSON.parseObject(value);
+        } else if (value.matches(arrRegex)) {
+            return JSON.parseArray(value);
+        }
+        return value;
+    }
+
+
+    @Getter
+    @Setter
+    private static class KeyIndex {
+        KeyIndex(String sourceKey) {
+            boolean arrKey = sourceKey.matches(arrKeyRegex);
+            if (arrKey) {
+                Matcher m = KEY_INDEX_PATTERN.matcher(sourceKey);
+                if (m.find()) {
+                    this.key = m.group(1);
+                    this.index = Integer.parseInt(m.group(2));
+                    this.isArr = true;
+                }
+            } else {
+                this.key = sourceKey;
+            }
+        }
+
+        private String key;
+        private Integer index;
+        private boolean isArr;
     }
 
     private static JSONObject getJsonWithKey(JSONObject json, LinkedList<String> keys) {
         String key = keys.pollFirst();
         if (key != null) {
             JSONObject j = getJsonWithKey(json, key);
+            if (j == null) {
+                throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, key + "不存在");
+            }
             return getJsonWithKey(j, keys);
         }
         return json;
     }
 
-    private static String regex = "\\S+\\[\\d+]$";
+    private static String arrKeyRegex = "\\S+\\[\\d+]$";
     private static String arrRegex = "\\s*\\[\\S+]\\s*";
+    private static String jsonRegex = "\\s*\\{\\S+}\\s*";
 
     private static JSONObject getJsonWithKey(JSONObject json, String key) {
         //查看name是否以[d]结尾,如果是说明是数组,数组获取索引所在的对象
-        boolean matches = key.matches(regex);
-        if (matches) {
-            Matcher m = KEY_INDEX_PATTERN.matcher(key);
-            if (m.find()) {
-                String realKey = m.group(1);
-                JSONArray array;
-                if (json == null) {
-                    array = JSON.parseArray(String.valueOf(cacheMap.get(realKey)));
-                } else {
-                    array = json.getJSONArray(realKey);
-                }
-                int index = Integer.parseInt(m.group(2));
-                return array.getJSONObject(index);
+        KeyIndex keyIndex = new KeyIndex(key);
+        if (keyIndex.isArr) {
+            JSONArray array;
+            if (json == null) {
+                array = JSON.parseArray(String.valueOf(cacheMap.get(keyIndex.getKey())));
+            } else {
+                array = json.getJSONArray(keyIndex.getKey());
             }
+            return array.getJSONObject(keyIndex.getIndex());
         }
         if (json == null) {
-            return JSONObject.parseObject(String.valueOf(cacheMap.get(key)));
+            try {
+                return JSONObject.parseObject(String.valueOf(cacheMap.get(key)));
+            } catch (JSONException e) {
+                throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, key + "不是json对象");
+            }
         }
-        return json.getJSONObject(key);
+        try {
+            return json.getJSONObject(key);
+        } catch (Exception e) {
+            throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, key + "为JsonArray,请指定下标");
+        }
     }
 
     @RequestMapping(value = "getData", produces = "application/json;charset=UTF-8")
