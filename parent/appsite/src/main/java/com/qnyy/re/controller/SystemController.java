@@ -53,9 +53,13 @@ import java.util.stream.Stream;
 @RestController
 @RequestMapping("system")
 public class SystemController extends BaseController {
+    private static final Pattern KEY_INDEX_PATTERN = Pattern.compile("(\\S+)\\[(\\d+)]$");
+    private static final String LINK_KEY_REGEX = "[^.]\\S+(\\.)\\S+";
+    private static final String ARR_KEY_REGEX = "\\S+\\[\\d+]$";
+    private static final String ARR_REGEX = "\\s*\\[\\S+]\\s*";
+    private static final String JSON_REGEX = "\\s*\\{\\S+}\\s*";
     private static Map<String, CharSequence> cacheMap = new ConcurrentHashMap<>();
     private static Map<String, LinkedList<CharSequence>> cacheMapHistory = new ConcurrentHashMap<>();
-
     /**
      * 查询消息日志
      */
@@ -249,10 +253,28 @@ public class SystemController extends BaseController {
     @UnRequiredLogin(checkSign = false)
     @ApiDocument("保存数据")
     public Response putData(String key, String value, boolean replace) {
-        CharSequence cacheValue = cacheMap.get(key);
-        if (key.matches("[^.]\\S+(\\.)\\S+")) {
-            putValueByKey(key, value, replace);
+        String[] keyValue = disposeKeyValue(key, value, replace);
+        final String putKey = keyValue[0];
+        final String putValue = keyValue[1];
+        saveCacheHistory(putKey, putValue);
+        cacheMap.put(putKey, putValue);
+        return new Response("保存成功");
+    }
+
+    private static String[] disposeKeyValue(final String key, final String value,final boolean replace) {
+        if (key.matches(LINK_KEY_REGEX)) {
+            String[] keyValue = saveLinkValue(key, value, replace);
+            if (keyValue != null) {
+                return new String[]{keyValue[0], keyValue[0]};
+            } else {
+                throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, "保存失败");
+            }
         }
+        return new String[]{key, value};
+    }
+
+    private static void saveCacheHistory(String key, String value) {
+        CharSequence cacheValue = cacheMap.get(key);
         //保存原来的值到历史
         if (cacheValue != null) {
             LinkedList<CharSequence> values = cacheMapHistory.computeIfAbsent(key, s -> new LinkedList<>());
@@ -263,52 +285,48 @@ public class SystemController extends BaseController {
                 values.pollLast();
             }
         }
-        cacheMap.put(key, value);
-        return new Response("保存成功");
     }
 
-    private static final Pattern KEY_INDEX_PATTERN = Pattern.compile("(\\S+)\\[(\\d+)]$");
-
-    private static JSONObject putValueByKey(String key, String value, boolean replace) {
+    private static String[] saveLinkValue(final String key, final String value, final boolean replace) {
         String[] nameSplit = key.trim().split("\\.");
         LinkedList<String> collect = Stream.of(nameSplit).collect(Collectors.toCollection(LinkedList::new));
         String putKey = collect.pollLast();
         String first = collect.pollFirst();
         if (first != null && putKey != null) {
             JSONObject source = getJsonWithKey(null, first);
-            if (source != null) {
-                JSONObject target = getJsonWithKey(source, collect);
-                KeyIndex keyIndex = new KeyIndex(putKey);
-                Object putObj = target.get(keyIndex.getKey());
-                Object valueObj = parseValue(value);
-                if ((!replace || keyIndex.isArr) && putObj instanceof JSONArray) {
-                    JSONArray array = (JSONArray) putObj;
-                    if (keyIndex.isArr) {
-                        //这里是替换
-                        array.set(keyIndex.getIndex(), valueObj);
-                    } else {
-                        if (valueObj instanceof Collection) {
-                            //集合处理
-                            array.addAll((Collection<?>) valueObj);
-                        } else {
-                            array.add(valueObj);
-                        }
-                    }
-                } else {
-                    //否则直接替换
-                    target.put(keyIndex.getKey(), valueObj);
-                }
-                cacheMap.put(first, JSON.toJSONString(source));
-                return source;
+            if (source == null) {
+                throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, first + "不存在");
             }
+            JSONObject target = getJsonWithKey(source, collect);
+            KeyIndex keyIndex = new KeyIndex(putKey);
+            Object putObj = target.get(keyIndex.getKey());
+            Object valueObj = parseValue(value);
+            if ((!replace || keyIndex.isArr) && putObj instanceof JSONArray) {
+                JSONArray array = (JSONArray) putObj;
+                if (keyIndex.isArr) {
+                    //这里是替换
+                    array.set(keyIndex.getIndex(), valueObj);
+                } else {
+                    if (valueObj instanceof Collection) {
+                        //集合处理
+                        array.addAll((Collection<?>) valueObj);
+                    } else {
+                        array.add(valueObj);
+                    }
+                }
+            } else {
+                //否则直接替换
+                target.put(keyIndex.getKey(), valueObj);
+            }
+            return new String[]{first, JSON.toJSONString(source)};
         }
         return null;
     }
 
     private static Object parseValue(String value) {
-        if (value.matches(jsonRegex)) {
+        if (value.matches(JSON_REGEX)) {
             return JSON.parseObject(value);
-        } else if (value.matches(arrRegex)) {
+        } else if (value.matches(ARR_REGEX)) {
             return JSON.parseArray(value);
         }
         return value;
@@ -319,7 +337,7 @@ public class SystemController extends BaseController {
     @Setter
     private static class KeyIndex {
         KeyIndex(String sourceKey) {
-            boolean arrKey = sourceKey.matches(arrKeyRegex);
+            boolean arrKey = sourceKey.matches(ARR_KEY_REGEX);
             if (arrKey) {
                 Matcher m = KEY_INDEX_PATTERN.matcher(sourceKey);
                 if (m.find()) {
@@ -348,10 +366,6 @@ public class SystemController extends BaseController {
         }
         return json;
     }
-
-    private static String arrKeyRegex = "\\S+\\[\\d+]$";
-    private static String arrRegex = "\\s*\\[\\S+]\\s*";
-    private static String jsonRegex = "\\s*\\{\\S+}\\s*";
 
     private static JSONObject getJsonWithKey(JSONObject json, String key) {
         //查看name是否以[d]结尾,如果是说明是数组,数组获取索引所在的对象
