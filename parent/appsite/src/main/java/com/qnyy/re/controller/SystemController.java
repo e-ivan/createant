@@ -265,7 +265,7 @@ public class SystemController extends BaseController {
         if (key.matches(LINK_KEY_REGEX)) {
             String[] keyValue = saveLinkValue(key, value, replace);
             if (keyValue != null) {
-                return new String[]{keyValue[0], keyValue[0]};
+                return new String[]{keyValue[0], keyValue[1]};
             } else {
                 throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, "保存失败");
             }
@@ -301,6 +301,9 @@ public class SystemController extends BaseController {
             KeyIndex keyIndex = new KeyIndex(putKey);
             Object putObj = target.get(keyIndex.getKey());
             Object valueObj = parseValue(value);
+            if (!replace && keyIndex.isArr && !(putObj instanceof JSONArray)) {
+                throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, keyIndex.getKey() + "不是数组");
+            }
             if ((!replace || keyIndex.isArr) && putObj instanceof JSONArray) {
                 JSONArray array = (JSONArray) putObj;
                 if (keyIndex.isArr) {
