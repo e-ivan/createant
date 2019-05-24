@@ -283,6 +283,10 @@ public class SystemController extends BaseController {
         return new Response("保存成功");
     }
 
+    private static String compatibilityKey(String key) {
+        return key.replaceAll("【", "[").replaceAll("】", "]");
+    }
+
     private static String[] disposeKeyValue(final String key, final String value, final boolean replace) {
         if (key.matches(LINK_KEY_REGEX)) {
             String[] keyValue = saveLinkValue(key, value, replace);
@@ -443,6 +447,7 @@ public class SystemController extends BaseController {
     @UnRequiredLogin(checkSign = false)
     @ApiDocument("获取数据")
     public Object getData(String key, Integer type) {
+        key = compatibilityKey(key);
         Object retValue = null;
         if (key.matches(LINK_KEY_REGEX)) {
             String[] nameSplit = key.trim().split("\\.");
@@ -464,8 +469,9 @@ public class SystemController extends BaseController {
             }
         } else {
             if (REGEX_PATTERN.matcher(key).find()) {
+                String regex = key;
                 Set<String> keySet = cacheMap.keySet();
-                retValue = keySet.stream().filter(k -> k.matches(key)).collect(Collectors.toMap(o -> o, o -> parseValue(String.valueOf(cacheMap.get(o)))));
+                retValue = keySet.stream().filter(k -> k.matches(regex)).collect(Collectors.toMap(o -> o, o -> parseValue(String.valueOf(cacheMap.get(o)))));
             } else {
                 if (StringUtils.equals(ALL_DATA, key)) {
                     retValue = cacheMap;
@@ -483,6 +489,7 @@ public class SystemController extends BaseController {
     @UnRequiredLogin(checkSign = false)
     @ApiDocument("清除数据")
     public Object clearData(String key) {
+        key = compatibilityKey(key);
         Map<String, CharSequence> remove = new HashMap<>(10);
         if (key.matches(LINK_KEY_REGEX)) {
             String[] nameSplit = key.trim().split("\\.");
@@ -510,8 +517,9 @@ public class SystemController extends BaseController {
             }
         } else {
             if (REGEX_PATTERN.matcher(key).find()) {
+                String regex = key;
                 Set<String> keySet = cacheMap.keySet();
-                remove.putAll(keySet.stream().filter(k -> k.matches(key)).collect(Collectors.toMap(o -> o, o -> {
+                remove.putAll(keySet.stream().filter(k -> k.matches(regex)).collect(Collectors.toMap(o -> o, o -> {
                     saveCacheHistory(o, null);
                     return cacheMap.remove(o);
                 })));
@@ -531,6 +539,7 @@ public class SystemController extends BaseController {
     @UnRequiredLogin(checkSign = false)
     @ApiDocument("历史数据")
     public Object historyData(String key, Integer index) {
+        key = compatibilityKey(key);
         Object ret = null;
         if (index != null) {
             //撤销数据
