@@ -53,13 +53,35 @@ import java.util.stream.Stream;
 @RestController
 @RequestMapping("system")
 public class SystemController extends BaseController {
-    private static final Pattern KEY_INDEX_PATTERN = Pattern.compile("(\\S+)\\[(\\d+)]$");
-    private static final String LINK_KEY_REGEX = "[^.]\\S+(\\.)\\S+";
-    private static final String ARR_KEY_REGEX = "\\S+\\[\\d+]$";
-    private static final String ARR_REGEX = "\\s*\\[\\S+]\\s*";
+    /**
+     * key[index]
+     */
+    private static final Pattern KEY_INDEX_PATTERN = Pattern.compile("(\\w+)\\[(\\d+)]$");
+    /**
+     * 正则表达式存在字符
+     */
+    private static final Pattern REGEX_PATTERN = Pattern.compile("[\\\\ !$%^&*()+=|{}\\[\\].<>/?]|\n|\r|\t");
+    /**
+     * 链表结构
+     */
+    private static final String LINK_KEY_REGEX = "[^.]\\w+(\\[\\d+])?(\\.\\w+(\\[\\d+])?)+";
+    /**
+     * 数组key
+     */
+    private static final String ARR_KEY_REGEX = "\\w+\\[\\d+]$";
+    /**
+     * 数组
+     */
+    private static final String ARR_REGEX = "\\s*\\[.*]\\s*";
+    /**
+     * json
+     */
     private static final String JSON_REGEX = "\\s*\\{\\S+}\\s*";
+    private static final String ALL_DATA = "ALL_DATA";
+    private static final String ALL_KEY = "ALL_KEY";
     private static Map<String, CharSequence> cacheMap = new ConcurrentHashMap<>();
     private static Map<String, LinkedList<CharSequence>> cacheMapHistory = new ConcurrentHashMap<>();
+
     /**
      * 查询消息日志
      */
@@ -261,7 +283,7 @@ public class SystemController extends BaseController {
         return new Response("保存成功");
     }
 
-    private static String[] disposeKeyValue(final String key, final String value,final boolean replace) {
+    private static String[] disposeKeyValue(final String key, final String value, final boolean replace) {
         if (key.matches(LINK_KEY_REGEX)) {
             String[] keyValue = saveLinkValue(key, value, replace);
             if (keyValue != null) {
@@ -269,6 +291,10 @@ public class SystemController extends BaseController {
             } else {
                 throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, "保存失败");
             }
+        }
+        boolean isRegex = REGEX_PATTERN.matcher(key).find();
+        if (isRegex || StringUtils.containsAny(key, ALL_DATA, ALL_KEY)) {
+            throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, key + "不能存在特殊字符");
         }
         return new String[]{key, value};
     }
@@ -287,6 +313,15 @@ public class SystemController extends BaseController {
         }
     }
 
+    private static CharSequence rollbackCache(String key, int index) {
+        LinkedList<CharSequence> values = cacheMapHistory.computeIfAbsent(key, s -> new LinkedList<>());
+        CharSequence historyValue = values.get(index);
+        if (StringUtils.isNotBlank(historyValue)) {
+            cacheMap.put(key, historyValue);
+        }
+        return historyValue;
+    }
+
     private static String[] saveLinkValue(final String key, final String value, final boolean replace) {
         String[] nameSplit = key.trim().split("\\.");
         LinkedList<String> collect = Stream.of(nameSplit).collect(Collectors.toCollection(LinkedList::new));
@@ -295,7 +330,7 @@ public class SystemController extends BaseController {
         if (first != null && putKey != null) {
             JSONObject source = getJsonWithKey(null, first);
             if (source == null) {
-                throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, first + "不存在");
+                throw new BusinessException(CommonErrorResultEnum.OBJECT_UN_EXIST, first + "不存在");
             }
             JSONObject target = getJsonWithKey(source, collect);
             KeyIndex keyIndex = new KeyIndex(putKey);
@@ -303,8 +338,7 @@ public class SystemController extends BaseController {
             Object valueObj = parseValue(value);
             if (!replace && keyIndex.isArr && !(putObj instanceof JSONArray)) {
                 throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, keyIndex.getKey() + "不是数组");
-            }
-            if ((!replace || keyIndex.isArr) && putObj instanceof JSONArray) {
+            } else if ((!replace || keyIndex.isArr) && putObj instanceof JSONArray) {
                 JSONArray array = (JSONArray) putObj;
                 if (keyIndex.isArr) {
                     //这里是替换
@@ -354,7 +388,7 @@ public class SystemController extends BaseController {
         }
 
         private String key;
-        private Integer index;
+        private int index;
         private boolean isArr;
     }
 
@@ -363,7 +397,7 @@ public class SystemController extends BaseController {
         if (key != null) {
             JSONObject j = getJsonWithKey(json, key);
             if (j == null) {
-                throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, key + "不存在");
+                throw new BusinessException(CommonErrorResultEnum.OBJECT_UN_EXIST, key + "不存在");
             }
             return getJsonWithKey(j, keys);
         }
@@ -375,18 +409,27 @@ public class SystemController extends BaseController {
         KeyIndex keyIndex = new KeyIndex(key);
         if (keyIndex.isArr) {
             JSONArray array;
-            if (json == null) {
-                array = JSON.parseArray(String.valueOf(cacheMap.get(keyIndex.getKey())));
-            } else {
-                array = json.getJSONArray(keyIndex.getKey());
+            String keyIndexKey = keyIndex.getKey();
+            try {
+                if (json == null) {
+                    array = JSON.parseArray(String.valueOf(cacheMap.get(keyIndexKey)));
+                } else {
+                    array = json.getJSONArray(keyIndexKey);
+                }
+            } catch (ClassCastException e) {
+                throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, keyIndexKey + "不是JsonArray");
             }
-            return array.getJSONObject(keyIndex.getIndex());
+            try {
+                return array.getJSONObject(keyIndex.getIndex());
+            } catch (ClassCastException e) {
+                throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, keyIndexKey + "不是Json对象");
+            }
         }
         if (json == null) {
             try {
                 return JSONObject.parseObject(String.valueOf(cacheMap.get(key)));
             } catch (JSONException e) {
-                throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, key + "不是json对象");
+                throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, key + "不是Json对象");
             }
         }
         try {
@@ -400,19 +443,107 @@ public class SystemController extends BaseController {
     @UnRequiredLogin(checkSign = false)
     @ApiDocument("获取数据")
     public Object getData(String key, Integer type) {
-        Object o = StringUtils.equals("ALL_DATA", key) ? cacheMap : cacheMap.get(key);
-        return type != null && type == 0 ? o : new ObjectResponse<>(o);
+        Object retValue = null;
+        if (key.matches(LINK_KEY_REGEX)) {
+            String[] nameSplit = key.trim().split("\\.");
+            LinkedList<String> collect = Stream.of(nameSplit).collect(Collectors.toCollection(LinkedList::new));
+            String endKey = collect.pollLast();
+            if (endKey != null) {
+                KeyIndex keyIndex = new KeyIndex(endKey);
+                JSONObject json = getJsonWithKey(null, collect);
+                Object o = json.get(keyIndex.getKey());
+                if (keyIndex.isArr) {
+                    if (o instanceof JSONArray) {
+                        retValue = ((JSONArray) o).get(keyIndex.getIndex());
+                    } else {
+                        throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, keyIndex.getKey() + "不是数组");
+                    }
+                } else {
+                    retValue = o;
+                }
+            }
+        } else {
+            if (REGEX_PATTERN.matcher(key).find()) {
+                Set<String> keySet = cacheMap.keySet();
+                retValue = keySet.stream().filter(k -> k.matches(key)).collect(Collectors.toMap(o -> o, o -> parseValue(String.valueOf(cacheMap.get(o)))));
+            } else {
+                if (StringUtils.equals(ALL_DATA, key)) {
+                    retValue = cacheMap;
+                } else if (StringUtils.equals(ALL_KEY, key)) {
+                    retValue = cacheMap.keySet();
+                } else {
+                    retValue = parseValue(String.valueOf(cacheMap.get(key)));
+                }
+            }
+        }
+        return type != null && type == 0 ? retValue : new ObjectResponse<>(retValue);
     }
 
     @RequestMapping(value = "clearData")
     @UnRequiredLogin(checkSign = false)
     @ApiDocument("清除数据")
     public Object clearData(String key) {
-        if (StringUtils.equals("ALL_DATA", key)) {
-            cacheMap.clear();
+        Map<String, CharSequence> remove = new HashMap<>(10);
+        if (key.matches(LINK_KEY_REGEX)) {
+            String[] nameSplit = key.trim().split("\\.");
+            LinkedList<String> collect = Stream.of(nameSplit).collect(Collectors.toCollection(LinkedList::new));
+            String endKey = collect.pollLast();
+            String first = collect.pollFirst();
+            if (first != null && endKey != null) {
+                JSONObject source = getJsonWithKey(null, first);
+                JSONObject target = getJsonWithKey(source, collect);
+                KeyIndex keyIndex = new KeyIndex(endKey);
+                Object removeValue = null;
+                if (keyIndex.isArr) {
+                    Object o = target.get(keyIndex.getKey());
+                    if (o instanceof JSONArray) {
+                        JSONArray array = (JSONArray) o;
+                        removeValue = array.remove(keyIndex.index);
+                    }
+                } else {
+                    removeValue = target.remove(keyIndex.getKey());
+                }
+                String value = JSON.toJSONString(source);
+                saveCacheHistory(first, value);
+                cacheMap.put(first, value);
+                remove.put(key, JSON.toJSONString(removeValue));
+            }
         } else {
-            cacheMap.remove(key);
+            if (REGEX_PATTERN.matcher(key).find()) {
+                Set<String> keySet = cacheMap.keySet();
+                remove.putAll(keySet.stream().filter(k -> k.matches(key)).collect(Collectors.toMap(o -> o, o -> {
+                    saveCacheHistory(o, null);
+                    return cacheMap.remove(o);
+                })));
+            } else {
+                if (StringUtils.equals(ALL_DATA, key)) {
+                    remove.putAll(cacheMap);
+                    cacheMap.clear();
+                } else {
+                    remove.put(key, cacheMap.remove(key));
+                }
+            }
         }
-        return new Response("清除成功");
+        return new ObjectResponse<>(remove, "清除成功");
+    }
+
+    @RequestMapping(value = "historyData", produces = "application/json;charset=UTF-8")
+    @UnRequiredLogin(checkSign = false)
+    @ApiDocument("历史数据")
+    public Object historyData(String key, Integer index) {
+        Object ret = null;
+        if (index != null) {
+            //撤销数据
+            if (StringUtils.isNotBlank(key)) {
+                ret = rollbackCache(key, index);
+            }
+        } else {
+            if (StringUtils.isNotBlank(key)) {
+                ret = cacheMapHistory.get(key);
+            } else {
+                ret = cacheMapHistory;
+            }
+        }
+        return ret;
     }
 }
