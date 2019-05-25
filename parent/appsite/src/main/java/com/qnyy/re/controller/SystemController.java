@@ -40,7 +40,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.io.File;
 import java.io.IOException;
 import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -79,8 +79,9 @@ public class SystemController extends BaseController {
     private static final String JSON_REGEX = "\\s*\\{\\S+}\\s*";
     private static final String ALL_DATA = "ALL_DATA";
     private static final String ALL_KEY = "ALL_KEY";
-    private static Map<String, CharSequence> cacheMap = new ConcurrentHashMap<>();
-    private static Map<String, LinkedList<CharSequence>> cacheMapHistory = new ConcurrentHashMap<>();
+    private static final String MAX_HISTORY_ROW = "MAX_HISTORY_ROW";
+    private static Map<String, CharSequence> cacheMap = new ConcurrentSkipListMap<>();
+    private static Map<String, LinkedList<CharSequence>> cacheMapHistory = new ConcurrentSkipListMap<>();
 
     /**
      * 查询消息日志
@@ -311,9 +312,23 @@ public class SystemController extends BaseController {
             if (!StringUtils.equals(values.peek(), value)) {
                 values.push(cacheValue);
             }
-            if (values.size() > 10) {
-                values.pollLast();
-            }
+            clearValuesOfSize(values,getMaxHistoryRow());
+        }
+    }
+
+    private static void clearValuesOfSize(LinkedList<?> values,final int size) {
+        if (values.size() > size) {
+            values.pollLast();
+            clearValuesOfSize(values, size);
+        }
+    }
+
+    private static int getMaxHistoryRow() {
+        CharSequence row = cacheMap.getOrDefault(MAX_HISTORY_ROW, "10");
+        try {
+            return Integer.parseInt(String.valueOf(row));
+        } catch (NumberFormatException e) {
+            return 10;
         }
     }
 
