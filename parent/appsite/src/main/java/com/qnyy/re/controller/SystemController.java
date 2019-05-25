@@ -285,7 +285,10 @@ public class SystemController extends BaseController {
     }
 
     private static String compatibilityKey(String key) {
-        return key.replaceAll("【", "[").replaceAll("】", "]");
+        if (StringUtils.isNotBlank(key)) {
+            return key.replaceAll("【", "[").replaceAll("】", "]");
+        }
+        return key;
     }
 
     private static String[] disposeKeyValue(final String key, final String value, final boolean replace) {
@@ -312,11 +315,11 @@ public class SystemController extends BaseController {
             if (!StringUtils.equals(values.peek(), value)) {
                 values.push(cacheValue);
             }
-            clearValuesOfSize(values,getMaxHistoryRow());
+            clearValuesOfSize(values, getMaxHistoryRow());
         }
     }
 
-    private static void clearValuesOfSize(LinkedList<?> values,final int size) {
+    private static void clearValuesOfSize(LinkedList<?> values, final int size) {
         if (values.size() > size) {
             values.pollLast();
             clearValuesOfSize(values, size);
@@ -380,10 +383,12 @@ public class SystemController extends BaseController {
     }
 
     private static Object parseValue(String value) {
-        if (value.matches(JSON_REGEX)) {
-            return JSON.parseObject(value);
-        } else if (value.matches(ARR_REGEX)) {
-            return JSON.parseArray(value);
+        if (value != null) {
+            if (value.matches(JSON_REGEX)) {
+                return JSON.parseObject(value);
+            } else if (value.matches(ARR_REGEX)) {
+                return JSON.parseArray(value);
+            }
         }
         return value;
     }
@@ -486,14 +491,14 @@ public class SystemController extends BaseController {
             if (REGEX_PATTERN.matcher(key).find()) {
                 String regex = key;
                 Set<String> keySet = cacheMap.keySet();
-                retValue = keySet.stream().filter(k -> k.matches(regex)).collect(Collectors.toMap(o -> o, o -> parseValue(String.valueOf(cacheMap.get(o)))));
+                retValue = keySet.stream().filter(k -> k.matches(regex)).collect(Collectors.toMap(o -> o, o -> parseValue((String) cacheMap.get(o))));
             } else {
                 if (StringUtils.equals(ALL_DATA, key)) {
                     retValue = cacheMap;
                 } else if (StringUtils.equals(ALL_KEY, key)) {
                     retValue = cacheMap.keySet();
                 } else {
-                    retValue = parseValue(String.valueOf(cacheMap.get(key)));
+                    retValue = parseValue((String) cacheMap.get(key));
                 }
             }
         }
@@ -553,7 +558,7 @@ public class SystemController extends BaseController {
     @RequestMapping(value = "historyData", produces = "application/json;charset=UTF-8")
     @UnRequiredLogin(checkSign = false)
     @ApiDocument("历史数据")
-    public Object historyData(String key, Integer index) {
+    public Object historyData(String key, Integer index,boolean format) {
         key = compatibilityKey(key);
         Object ret = null;
         if (index != null) {
@@ -563,7 +568,12 @@ public class SystemController extends BaseController {
             }
         } else {
             if (StringUtils.isNotBlank(key)) {
-                ret = cacheMapHistory.get(key);
+                LinkedList<CharSequence> list = cacheMapHistory.get(key);
+                if (format && list != null) {
+                    ret = list.stream().map(s -> parseValue((String) s)).collect(Collectors.toCollection(LinkedList::new));
+                } else {
+                    ret = list;
+                }
             } else {
                 ret = cacheMapHistory;
             }
