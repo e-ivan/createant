@@ -64,7 +64,7 @@ public class SystemController extends BaseController {
     /**
      * 链表结构
      */
-    private static final String LINK_KEY_REGEX = "[^.]\\w+(\\[\\d+])?(\\.\\w+(\\[\\d+])?)+";
+    private static final String LINK_KEY_REGEX = "\\w+(\\[\\d+])?(\\.\\w+(\\[\\d+])?)+";
     /**
      * 数组key
      */
@@ -276,6 +276,10 @@ public class SystemController extends BaseController {
     @UnRequiredLogin(checkSign = false)
     @ApiDocument("保存数据")
     public Response putData(String key, String value, boolean replace) {
+        key = compatibilityKey(key);
+        if (StringUtils.isBlank(key)) {
+            throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, "key不能为空");
+        }
         String[] keyValue = disposeKeyValue(key, value, replace);
         final String putKey = keyValue[0];
         final String putValue = keyValue[1];
@@ -352,7 +356,7 @@ public class SystemController extends BaseController {
         if (first != null && putKey != null) {
             JSONObject source = getJsonWithKey(null, first);
             if (source == null) {
-                throw new BusinessException(CommonErrorResultEnum.OBJECT_UN_EXIST, first + "不存在");
+                source = new JSONObject();
             }
             JSONObject target = getJsonWithKey(source, collect);
             KeyIndex keyIndex = new KeyIndex(putKey);
@@ -417,8 +421,8 @@ public class SystemController extends BaseController {
     }
 
     private static JSONObject getJsonWithKey(JSONObject json, LinkedList<String> keys) {
-        String key = keys.pollFirst();
-        if (key != null) {
+        String key;
+        if ((key = keys.pollFirst()) != null) {
             JSONObject j = getJsonWithKey(json, key);
             if (j == null) {
                 throw new BusinessException(CommonErrorResultEnum.OBJECT_UN_EXIST, key + "不存在");
@@ -458,7 +462,10 @@ public class SystemController extends BaseController {
         }
         try {
             return json.getJSONObject(key);
+        } catch (JSONException e) {
+            throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, key + "不是Json对象");
         } catch (Exception e) {
+            e.printStackTrace();
             throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, key + "为JsonArray,请指定下标");
         }
     }
@@ -558,7 +565,7 @@ public class SystemController extends BaseController {
     @RequestMapping(value = "historyData", produces = "application/json;charset=UTF-8")
     @UnRequiredLogin(checkSign = false)
     @ApiDocument("历史数据")
-    public Object historyData(String key, Integer index,boolean format) {
+    public Object historyData(String key, Integer index, boolean format) {
         key = compatibilityKey(key);
         Object ret = null;
         if (index != null) {
