@@ -80,8 +80,11 @@ public class SystemController extends BaseController {
     private static final String ALL_DATA = "ALL_DATA";
     private static final String ALL_KEY = "ALL_KEY";
     private static final String MAX_HISTORY_ROW = "MAX_HISTORY_ROW";
+    private static final String NO_RECORD_HISTORY_KEY = "NO_RECORD_HISTORY_KEY";
     private static Map<String, CharSequence> cacheMap = new ConcurrentSkipListMap<>();
     private static Map<String, LinkedList<CharSequence>> cacheMapHistory = new ConcurrentSkipListMap<>();
+    private static List<String> noRecordKeys = Collections.synchronizedList(new ArrayList<>());
+    private static int maxRow = 10;
 
     /**
      * 查询消息日志
@@ -280,12 +283,41 @@ public class SystemController extends BaseController {
         if (StringUtils.isBlank(key)) {
             throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, "key不能为空");
         }
+        if (StringUtils.containsAny(key, NO_RECORD_HISTORY_KEY, MAX_HISTORY_ROW)) {
+            disposeSysConfig(key, value);
+            return new Response("配置已更新");
+        }
         String[] keyValue = disposeKeyValue(key, value, replace);
         final String putKey = keyValue[0];
         final String putValue = keyValue[1];
         saveCacheHistory(putKey, putValue);
         cacheMap.put(putKey, putValue);
         return new Response("保存成功");
+    }
+
+    private static void disposeSysConfig(String key, String value) {
+        //保存配置数据
+        switch (key) {
+            case NO_RECORD_HISTORY_KEY:
+                //解析
+                String[] keys = StringUtils.split(value, ",");
+                noRecordKeys.clear();
+                //清理原来的历史数据
+                for (String k : keys) {
+                    if (StringUtils.isNotBlank(k)) {
+                        cacheMapHistory.remove(k);
+                        noRecordKeys.add(k);
+                    }
+                }
+                break;
+            case MAX_HISTORY_ROW:
+                try {
+                    maxRow = Integer.parseInt(String.valueOf(value));
+                } catch (NumberFormatException ignored) {
+                }
+                break;
+            default:
+        }
     }
 
     private static String compatibilityKey(String key) {
@@ -312,14 +344,14 @@ public class SystemController extends BaseController {
     }
 
     private static void saveCacheHistory(String key, String value) {
-        CharSequence cacheValue = cacheMap.get(key);
+        CharSequence cacheValue;
         //保存原来的值到历史
-        if (cacheValue != null) {
+        if (!noRecordKeys.contains(key) && (cacheValue = cacheMap.get(key)) != null) {
             LinkedList<CharSequence> values = cacheMapHistory.computeIfAbsent(key, s -> new LinkedList<>());
             if (!StringUtils.equals(values.peek(), value)) {
                 values.push(cacheValue);
             }
-            clearValuesOfSize(values, getMaxHistoryRow());
+            clearValuesOfSize(values, maxRow);
         }
     }
 
@@ -327,15 +359,6 @@ public class SystemController extends BaseController {
         if (values.size() > size) {
             values.pollLast();
             clearValuesOfSize(values, size);
-        }
-    }
-
-    private static int getMaxHistoryRow() {
-        CharSequence row = cacheMap.getOrDefault(MAX_HISTORY_ROW, "10");
-        try {
-            return Integer.parseInt(String.valueOf(row));
-        } catch (NumberFormatException e) {
-            return 10;
         }
     }
 
@@ -504,6 +527,8 @@ public class SystemController extends BaseController {
                     retValue = cacheMap;
                 } else if (StringUtils.equals(ALL_KEY, key)) {
                     retValue = cacheMap.keySet();
+                } else if (StringUtils.containsAny(key, NO_RECORD_HISTORY_KEY, MAX_HISTORY_ROW)) {
+                    retValue = new JSONObject().fluentPut(NO_RECORD_HISTORY_KEY, noRecordKeys).fluentPut(MAX_HISTORY_ROW, maxRow);
                 } else {
                     retValue = parseValue((String) cacheMap.get(key));
                 }
@@ -552,9 +577,11 @@ public class SystemController extends BaseController {
                 })));
             } else {
                 if (StringUtils.equals(ALL_DATA, key)) {
+                    cacheMap.forEach((k, v) -> saveCacheHistory(k, null));
                     remove.putAll(cacheMap);
                     cacheMap.clear();
                 } else {
+                    saveCacheHistory(key, null);
                     remove.put(key, cacheMap.remove(key));
                 }
             }
