@@ -79,6 +79,7 @@ public class SystemController extends BaseController {
     private static final String JSON_REGEX = "\\s*\\{.*}\\s*";
     private static final String ALL_DATA = "ALL_DATA";
     private static final String ALL_KEY = "ALL_KEY";
+    private static final String ALL_CONFIG = "ALL_CONFIG";
     private static final String MAX_HISTORY_ROW = "MAX_HISTORY_ROW";
     private static final String NO_RECORD_HISTORY_KEY = "NO_RECORD_HISTORY_KEY";
     private static Map<String, CharSequence> cacheMap = new ConcurrentSkipListMap<>();
@@ -281,7 +282,7 @@ public class SystemController extends BaseController {
     public Response putData(String key, String value, boolean replace) {
         key = compatibilityKey(key);
         if (StringUtils.isBlank(key)) {
-            throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, "key不能为空");
+            throw new BusinessException(CommonErrorResultEnum.REQUEST_PARAM_LACK, "key不能为空");
         }
         if (StringUtils.containsAny(key, NO_RECORD_HISTORY_KEY, MAX_HISTORY_ROW)) {
             disposeSysConfig(key, value);
@@ -498,6 +499,9 @@ public class SystemController extends BaseController {
     @ApiDocument("获取数据")
     public Object getData(String key, Integer type) {
         key = compatibilityKey(key);
+        if (StringUtils.isBlank(key)) {
+            throw new BusinessException(CommonErrorResultEnum.REQUEST_PARAM_LACK, "key不能为空");
+        }
         Object retValue = null;
         if (key.matches(LINK_KEY_REGEX)) {
             String[] nameSplit = key.trim().split("\\.");
@@ -523,14 +527,18 @@ public class SystemController extends BaseController {
                 Set<String> keySet = cacheMap.keySet();
                 retValue = keySet.stream().filter(k -> k.matches(regex)).collect(Collectors.toMap(o -> o, o -> parseValue((String) cacheMap.get(o))));
             } else {
-                if (StringUtils.equals(ALL_DATA, key)) {
-                    retValue = cacheMap;
-                } else if (StringUtils.equals(ALL_KEY, key)) {
-                    retValue = cacheMap.keySet();
-                } else if (StringUtils.containsAny(key, NO_RECORD_HISTORY_KEY, MAX_HISTORY_ROW)) {
-                    retValue = new JSONObject().fluentPut(NO_RECORD_HISTORY_KEY, noRecordKeys).fluentPut(MAX_HISTORY_ROW, maxRow);
-                } else {
-                    retValue = parseValue((String) cacheMap.get(key));
+                switch (key) {
+                    case ALL_DATA :
+                        retValue = cacheMap;
+                        break;
+                    case ALL_KEY :
+                        retValue = cacheMap.keySet();
+                        break;
+                    case ALL_CONFIG:
+                        retValue = new JSONObject().fluentPut(NO_RECORD_HISTORY_KEY, noRecordKeys).fluentPut(MAX_HISTORY_ROW, maxRow);
+                        break;
+                    default:
+                        retValue = parseValue((String) cacheMap.get(key));
                 }
             }
         }

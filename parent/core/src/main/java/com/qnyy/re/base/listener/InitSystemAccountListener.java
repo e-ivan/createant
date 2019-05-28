@@ -8,14 +8,13 @@ import lombok.Setter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
-import org.springframework.stereotype.Component;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 /**
  * 初始化系统账户监听器
  * Created by E_Iva on 2018.1.8.0008.
  */
-@Component
+//@Component
 public class InitSystemAccountListener implements ApplicationListener<ContextRefreshedEvent> {
     @Autowired
     private ILoginInfoService loginInfoService;
@@ -33,7 +32,7 @@ public class InitSystemAccountListener implements ApplicationListener<ContextRef
 
     @Override
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        if (handlerMapping != null && !updateApi) {
+        /*if (handlerMapping != null && !updateApi) {
             apiInfoService.updateApiInfo(handlerMapping,site);
             updateApi = true;
             System.out.println("===============更新接口信息完毕===============");
@@ -43,6 +42,6 @@ public class InitSystemAccountListener implements ApplicationListener<ContextRef
             loginInfoService.initSystemAccount();
             mchService.iniSystemMch();
             System.out.println("================初始化系统帐户完毕==============");
-        }
+        }*/
     }
 }
