@@ -76,7 +76,7 @@ public class SystemController extends BaseController {
     /**
      * json
      */
-    private static final String JSON_REGEX = "\\s*\\{\\S+}\\s*";
+    private static final String JSON_REGEX = "\\s*\\{.*}\\s*";
     private static final String ALL_DATA = "ALL_DATA";
     private static final String ALL_KEY = "ALL_KEY";
     private static final String MAX_HISTORY_ROW = "MAX_HISTORY_ROW";
