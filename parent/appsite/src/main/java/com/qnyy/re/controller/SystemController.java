@@ -341,7 +341,7 @@ public class SystemController extends BaseController {
         if (isRegex || StringUtils.containsAny(key, ALL_DATA, ALL_KEY)) {
             throw new BusinessException(CommonErrorResultEnum.OBJECT_NOP, key + "不能存在特殊字符");
         }
-        return new String[]{key, value};
+        return new String[]{key, value.replaceAll("\n", "").replaceAll("\t", "")};
     }
 
     private static void saveCacheHistory(String key, String value) {
