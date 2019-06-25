@@ -337,11 +337,11 @@ public class SystemController extends BaseController {
     @RequestMapping(value = "pullData", produces = "application/json;charset=UTF-8")
     @UnRequiredLogin(checkSign = false)
     @ApiDocument("拉取数据")
-    public Object pullData(String url,String key,String type) {
+    public Object pullData(String targetUrl,String key,String type) {
         Map<String, String> map = new HashMap<>();
         map.put("key", key);
         map.put("type", type);
-        HttpUriRequest post = HttpClientUtils.getRequestMethod(map, url, "post");
+        HttpUriRequest post = HttpClientUtils.getRequestMethod(map, targetUrl, "post");
         CloseableHttpClient client = HttpClientUtils.getHttpClient();
         try (CloseableHttpResponse response = client.execute(post)) {
             String ret = EntityUtils.toString(response.getEntity(),"UTF-8");
