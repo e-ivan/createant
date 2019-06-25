@@ -4,17 +4,27 @@ import com.alibaba.fastjson.JSONObject;
 import org.apache.commons.collections.MapUtils;
 import org.apache.http.Consts;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
+import org.apache.http.client.CookieStore;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.client.methods.RequestBuilder;
+import org.apache.http.concurrent.FutureCallback;
 import org.apache.http.entity.StringEntity;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
 import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.impl.nio.client.CloseableHttpAsyncClient;
+import org.apache.http.impl.nio.client.HttpAsyncClients;
+import org.apache.http.impl.nio.conn.PoolingNHttpClientConnectionManager;
+import org.apache.http.impl.nio.reactor.DefaultConnectingIOReactor;
+import org.apache.http.impl.nio.reactor.IOReactorConfig;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.nio.reactor.ConnectingIOReactor;
+import org.apache.http.nio.reactor.IOReactorException;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -39,6 +49,7 @@ public class HttpClientUtils {
 
     private static String IP = "cnivi.com.cn";
     private static int PORT = 80;
+    private static CloseableHttpAsyncClient asyncClient = createAsyncClient(null,null,null);
 
     static {
         //设置http的状态参数
@@ -57,8 +68,41 @@ public class HttpClientUtils {
         httpBuilder.setConnectionManager(connectionManager);
     }
 
+    private static CloseableHttpAsyncClient createAsyncClient(RequestConfig config, PoolingNHttpClientConnectionManager connManager, CookieStore cookieStore) {
+        if (config == null) {
+            config = RequestConfig.custom()
+                    .setConnectTimeout(10000)
+                    .setSocketTimeout(10000)
+                    .setConnectionRequestTimeout(60000)
+                    .build();
+        }
+        //配置io线程
+        IOReactorConfig ioReactorConfig = IOReactorConfig.custom().
+                setIoThreadCount(Runtime.getRuntime().availableProcessors())
+                .setSoKeepAlive(true)
+                .build();
+        if (connManager == null) {
+            //设置连接池大小
+            try {
+                ConnectingIOReactor ioReactor = new DefaultConnectingIOReactor(ioReactorConfig);
+                connManager = new PoolingNHttpClientConnectionManager(ioReactor);
+                connManager.setMaxTotal(20);
+                connManager.setDefaultMaxPerRoute(20);
+            } catch (IOReactorException e) {
+                e.printStackTrace();
+            }
+        }
+        return HttpAsyncClients.custom().setDefaultCookieStore(cookieStore)
+                .setConnectionManager(connManager).setDefaultRequestConfig(config).build();
+
+    }
     public static CloseableHttpClient getHttpClient() {
         return httpBuilder.build();
+    }
+
+    public static void sendAsync(HttpUriRequest request, FutureCallback<HttpResponse> callback) {
+        asyncClient.start();
+        asyncClient.execute(request, callback);
     }
 
     /**
