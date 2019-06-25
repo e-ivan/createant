@@ -28,14 +28,12 @@ import com.qnyy.re.business.util.WeiXinMpRequestUtil;
 import com.qnyy.re.business.vo.param.CreateInformantVO;
 import com.qnyy.re.business.vo.param.SaveFeedbackVO;
 import com.qnyy.re.util.DataUtil;
-import com.qnyy.re.util.PullRequest;
 import com.qnyy.re.util.SignUtil;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.http.client.methods.CloseableHttpResponse;
 import org.apache.http.client.methods.HttpUriRequest;
 import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.util.EntityUtils;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -339,9 +337,11 @@ public class SystemController extends BaseController {
     @RequestMapping(value = "pullData", produces = "application/json;charset=UTF-8")
     @UnRequiredLogin(checkSign = false)
     @ApiDocument("拉取数据")
-    public Object pullData(@RequestBody PullRequest body) {
-        String url = body.getUrl();
-        HttpUriRequest post = HttpClientUtils.getRequestMethod(body.getParam(), url, "post");
+    public Object pullData(String url,String key,String type) {
+        Map<String, String> map = new HashMap<>();
+        map.put("key", key);
+        map.put("type", type);
+        HttpUriRequest post = HttpClientUtils.getRequestMethod(map, url, "post");
         CloseableHttpClient client = HttpClientUtils.getHttpClient();
         try (CloseableHttpResponse response = client.execute(post)) {
             String ret = EntityUtils.toString(response.getEntity(),"UTF-8");
