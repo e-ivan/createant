@@ -37,7 +37,7 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <org.mybatis.version>3.4.5</org.mybatis.version>
         <org.springframework.version>4.0.9.RELEASE</org.springframework.version>
-        <org.apache.poi.version>3.11</org.apache.poi.version>
+        <org.apache.poi.version>4.1.2</org.apache.poi.version>
     </properties>
 
     <dependencyManagement>
